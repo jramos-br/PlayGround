@@ -1,2 +1,2 @@
 # PlayGround
-Assorted programs primarily used for learning and testing.
+Assorted programs for learning and testing.
