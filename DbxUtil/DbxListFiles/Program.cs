@@ -19,12 +19,12 @@ namespace DbxListFiles
         [Flags]
         private enum TestUserFileStatus
         {
-            Success,
-            FileNotFound,
-            HashDiff,
-            DateTimeDiff,
-            SizeDiff,
-            Exception
+            Success = 0,
+            FileNotFound = 1,
+            HashDiff = 2,
+            DateTimeDiff = 4,
+            SizeDiff = 8,
+            Exception = 16
         };
 
         private class TestUserFileResult
@@ -36,7 +36,17 @@ namespace DbxListFiles
             public long Size = 0;
         };
 
-        private async Task<TestUserFileResult> TestUserFile(string contentHash, DateTime clientModified, ulong size, string userFilePath)
+        private static DateTime ParseDateTimeAsUtc(string value)
+        {
+            return DateTime.ParseExact(value, "s", DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+        }
+
+        private static long ParseNumberAsLong(string value)
+        {
+            return long.Parse(value, NumberStyles.None, NumberFormatInfo.InvariantInfo);
+        }
+
+        private async Task<TestUserFileResult> TestUserFile(string contentHash, DateTime clientModified, long size, string userFilePath)
         {
             var result = new TestUserFileResult();
 
@@ -50,7 +60,8 @@ namespace DbxListFiles
                     return result;
                 }
 
-                result.LastWriteTime = fi.LastWriteTimeUtc;
+                var lastWriteTimeUtc = fi.LastWriteTimeUtc;
+                result.LastWriteTime = lastWriteTimeUtc.AddTicks(-(lastWriteTimeUtc.Ticks % TimeSpan.TicksPerSecond));
                 result.Size = fi.Length;
 
                 if (result.LastWriteTime != clientModified)
@@ -58,7 +69,7 @@ namespace DbxListFiles
                     result.Status |= TestUserFileStatus.DateTimeDiff;
                 }
 
-                if ((ulong)result.Size != size)
+                if (result.Size != size)
                 {
                     result.Status |= TestUserFileStatus.SizeDiff;
                 }
@@ -104,7 +115,6 @@ namespace DbxListFiles
                 int foundCount = 0;
                 int notFoundCount = 0;
                 int errorCount = 0;
-                int a, b, c, d;
                 string line;
 
                 while ((line = await reader.ReadLineAsync()) != null)
@@ -117,23 +127,24 @@ namespace DbxListFiles
                     }
 
                     // d7d3682cf1ca9a8e4d272cd72edcc709df75f2ee9cad71183fd50f210eb0cffa 2011-03-20T07:50:10 2011-03-20T07:50:10 268860 /Getting Started.pdf
-                    //                                                             a^               b^               c^  d^
+                    //                                                                a^                  b^                  c^     d^
 
-                    if ((a = line.IndexOf(' ')) > 0 && (b = line.IndexOf(' ', a + 1)) > 0 &&
-                        (c = line.IndexOf(' ', b + 1)) > 0 && (d = line.IndexOf(' ', c + 1)) > 0)
-                    {
-                    }
-                    else
+                    var a = line.IndexOf(' ');
+                    var b = line.IndexOf(' ', a + 1);
+                    var c = line.IndexOf(' ', b + 1);
+                    var d = line.IndexOf(' ', c + 1);
+
+                    if (!(a == 64 && b == 84 && c == 104 && d > c + 1))
                     {
                         await Console.Error.WriteLineAsync(string.Format("{0}: invalid line", lineCount));
                         continue;
                     }
 
                     var contentHash = line.Substring(0, a);
-                    var serverModified = DateTime.Parse(line.Substring(a + 1, b - (a + 1)), DateTimeFormatInfo.InvariantInfo, DateTimeStyles.RoundtripKind);
-                    var clientModified = DateTime.Parse(line.Substring(b + 1, c - (b + 1)), DateTimeFormatInfo.InvariantInfo, DateTimeStyles.RoundtripKind);
-                    var size = ulong.Parse(line.Substring(c + 1, d - (c + 1)), NumberStyles.None, NumberFormatInfo.InvariantInfo);
-                    var pathDisplay = line.Substring(d + 2);
+                    var serverModified = ParseDateTimeAsUtc(line.Substring(a + 1, b - (a + 1)));
+                    var clientModified = ParseDateTimeAsUtc(line.Substring(b + 1, c - (b + 1)));
+                    var size = ParseNumberAsLong(line.Substring(c + 1, d - (c + 1)));
+                    var pathDisplay = line.Substring(d + 2); // Removes leading '/'
 
                     var userFilePath = Path.Combine(userRootPath, pathDisplay);
 
@@ -254,7 +265,7 @@ namespace DbxListFiles
                 {
                     using (var writer = new StreamWriter(listFileName))
                     {
-                        //await writer.WriteLineAsync("# ContentHash ServerModified ClientModified Size PathDisplay");
+                        await writer.WriteLineAsync("# ContentHash ServerModified ClientModified Size PathDisplay");
                         await ListAllFiles(client, writer);
                     }
                 }
@@ -299,10 +310,12 @@ namespace DbxListFiles
                     using (var optionDescriptions = new StringWriter())
                     {
                         p.WriteOptionDescriptions(optionDescriptions);
+
                         await Console.Out.WriteLineAsync(string.Format("Usage: {0} [OPTIONS]", ProgramName));
                         await Console.Out.WriteLineAsync();
                         await Console.Out.WriteLineAsync(optionDescriptions.ToString().TrimEnd());
                     }
+
                     return;
                 }
 
@@ -314,15 +327,25 @@ namespace DbxListFiles
                 switch (option)
                 {
                     case CommandOption.CreateListFile:
+
                         if (string.IsNullOrEmpty(listFileName) || !string.IsNullOrEmpty(userRootPath))
+                        {
                             throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
+                        }
+
                         await CreateListFile(listFileName);
                         break;
+
                     case CommandOption.TestUserFiles:
+
                         if (string.IsNullOrEmpty(listFileName) || string.IsNullOrEmpty(userRootPath))
+                        {
                             throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
+                        }
+
                         await TestUserFiles(listFileName, userRootPath);
                         break;
+
                     default:
                         throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
                 }
@@ -344,6 +367,7 @@ namespace DbxListFiles
             catch (Exception ex)
             {
                 await Console.Error.WriteLineAsync(ex.ToString());
+                Environment.ExitCode = 3;
             }
         }
     }
