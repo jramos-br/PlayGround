@@ -112,125 +112,6 @@ namespace DbxListFiles
             return result;
         }
 
-        private async Task TestUserFiles(string listFileName, string userRootPath)
-        {
-            using (var reader = new StreamReader(listFileName))
-            {
-                int lineCount = 0;
-                int fileCount = 0;
-                int fileNotFoundCount = 0;
-                int fileFoundCount = 0;
-                int equalCount = 0;
-                int lastWriteTimeCount = 0;
-                int sizeCount = 0;
-                int hashCount = 0;
-                int errorCount = 0;
-
-                string line;
-
-                while ((line = await reader.ReadLineAsync()) != null)
-                {
-                    ++lineCount;
-
-                    if (line[0] == '#')
-                    {
-                        continue;
-                    }
-
-                    // d7d3682cf1ca9a8e4d272cd72edcc709df75f2ee9cad71183fd50f210eb0cffa 2011-03-20T07:50:10 2011-03-20T07:50:10 268860 /Getting Started.pdf
-                    //                                                                a^                  b^                  c^     d^
-
-                    var a = line.IndexOf(' ');
-                    var b = line.IndexOf(' ', a + 1);
-                    var c = line.IndexOf(' ', b + 1);
-                    var d = line.IndexOf(' ', c + 1);
-
-                    if (!(a == 64 && b == 84 && c == 104 && d > c + 1))
-                    {
-                        await Console.Error.WriteLineAsync(string.Format("{0}: invalid line", lineCount));
-                        continue;
-                    }
-
-                    var contentHash = line.Substring(0, a);
-                    var serverModified = ParseDateTimeAsUtc(line.Substring(a + 1, b - (a + 1)));
-                    var clientModified = ParseDateTimeAsUtc(line.Substring(b + 1, c - (b + 1)));
-                    var size = ParseNumberAsLong(line.Substring(c + 1, d - (c + 1)));
-                    var pathDisplay = line.Substring(d + 2); // Removes leading '/'
-
-                    var userFilePath = Path.Combine(userRootPath, pathDisplay);
-
-                    var result = await TestUserFile(contentHash, clientModified, size, userFilePath);
-
-                    ++fileCount;
-
-                    if (result.Status == TestFileStatus.Success)
-                    {
-                        ++fileFoundCount;
-                        ++equalCount;
-
-                        if (Verbose)
-                        {
-                            await Console.Out.WriteLineAsync(string.Format("[U] {0}: OK", pathDisplay));
-                        }
-                    }
-                    else if (result.Status == TestFileStatus.FileNotFound)
-                    {
-                        ++fileNotFoundCount;
-
-                        if (Verbose)
-                        {
-                            await Console.Error.WriteLineAsync(string.Format("[U] {0}: file not found", pathDisplay));
-                        }
-                    }
-                    else
-                    {
-                        ++fileFoundCount;
-
-                        var sb = new StringBuilder();
-
-                        sb.Append("[U] ");
-                        sb.Append(pathDisplay);
-                        sb.Append(":");
-
-                        if ((result.Status & TestFileStatus.DateTimeDiff) != 0)
-                        {
-                            ++lastWriteTimeCount;
-                            sb.AppendFormat(" DateTimeError: [U={0} D={1}]", result.LastWriteTime, clientModified);
-                        }
-
-                        if ((result.Status & TestFileStatus.SizeDiff) != 0)
-                        {
-                            ++sizeCount;
-                            sb.AppendFormat(" SizeError: [U={0} D={1}]", result.Size, size);
-                        }
-
-                        if ((result.Status & TestFileStatus.HashDiff) != 0)
-                        {
-                            ++hashCount;
-                            sb.AppendFormat(" HashError: [U={0} D={1}]", result.FileHash, contentHash);
-                        }
-
-                        if ((result.Status & TestFileStatus.Exception) != 0)
-                        {
-                            ++errorCount;
-                            sb.AppendFormat(" Exception: [{0}]", result.ExceptionMessage);
-                        }
-
-                        await Console.Error.WriteLineAsync(sb.ToString());
-                    }
-                }
-
-                await Console.Out.WriteLineAsync(string.Format("Files in Dropbox..............................: {0}", fileCount));
-                await Console.Out.WriteLineAsync(string.Format("Files not found in 'user' folder..............: {0}", fileNotFoundCount));
-                await Console.Out.WriteLineAsync(string.Format("Files found in 'user' folder..................: {0}", fileFoundCount));
-                await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCount));
-                await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCount));
-                await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCount));
-                await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCount));
-                await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", errorCount));
-            }
-        }
-
         private async Task TestUserFiles(string listFileName, string userRootPath, string otherRootPath)
         {
             int totalLineCount = 0;
@@ -305,7 +186,7 @@ namespace DbxListFiles
 
                     if (!(a == 64 && b == 84 && c == 104 && d > c + 1))
                     {
-                        await Console.Error.WriteLineAsync(string.Format("{0}: invalid line", lineCount));
+                        await WriteLineAsync(string.Format("{0}: invalid line", lineCount));
                         continue;
                     }
 
@@ -337,7 +218,7 @@ namespace DbxListFiles
 
                             if (Verbose)
                             {
-                                await Console.Out.WriteLineAsync(string.Format("[U] {0}: OK", pathDisplay));
+                                await WriteLineAsync(string.Format("[U] {0}: OK", pathDisplay));
                             }
                         }
                         else if (results[0].Status == TestFileStatus.FileNotFound)
@@ -346,7 +227,7 @@ namespace DbxListFiles
 
                             if (Verbose)
                             {
-                                await Console.Error.WriteLineAsync(string.Format("[U] {0}: file not found", pathDisplay));
+                                await WriteLineAsync(string.Format("[U] {0}: file not found", pathDisplay));
                             }
                         }
                         else
@@ -383,7 +264,7 @@ namespace DbxListFiles
                                 sb.AppendFormat(" Exception: [{0}]", results[0].ExceptionMessage);
                             }
 
-                            await Console.Error.WriteLineAsync(sb.ToString());
+                            await WriteLineAsync(sb.ToString());
                         }
                     }
 
@@ -396,7 +277,7 @@ namespace DbxListFiles
 
                             if (Verbose)
                             {
-                                await Console.Out.WriteLineAsync(string.Format("[O] {0}: OK", pathDisplay));
+                                await WriteLineAsync(string.Format("[O] {0}: OK", pathDisplay));
                             }
                         }
                         else if (results[1].Status == TestFileStatus.FileNotFound)
@@ -405,7 +286,7 @@ namespace DbxListFiles
 
                             if (Verbose)
                             {
-                                await Console.Error.WriteLineAsync(string.Format("[O] {0}: file not found", pathDisplay));
+                                await WriteLineAsync(string.Format("[O] {0}: file not found", pathDisplay));
                             }
                         }
                         else
@@ -442,7 +323,7 @@ namespace DbxListFiles
                                 sb.AppendFormat(" Exception: [{0}]", results[1].ExceptionMessage);
                             }
 
-                            await Console.Error.WriteLineAsync(sb.ToString());
+                            await WriteLineAsync(sb.ToString());
                         }
                     }
 
@@ -479,12 +360,13 @@ namespace DbxListFiles
                             }
                             else
                             {
-                                await Console.Error.WriteLineAsync("[X] " + pathDisplay + ":" + sbx.ToString());
+                                await WriteLineAsync("[X] " + pathDisplay + ":" + sbx.ToString());
                             }
                         }
                     }
                 }
 
+                await Console.Out.WriteLineAsync();
                 await Console.Out.WriteLineAsync(string.Format("Files in Dropbox..............................: {0}", fileCount));
 
                 if (userRootPath != null)
@@ -584,6 +466,20 @@ namespace DbxListFiles
             }
         }
 
+        private TextWriter OutputWriter = null;
+
+        private async Task WriteLineAsync(string value)
+        {
+            if (OutputWriter != null)
+            {
+                await OutputWriter.WriteLineAsync(value);
+            }
+            else
+            {
+                await Console.Out.WriteLineAsync(value);
+            }
+        }
+
         private enum CommandOption
         {
             None,
@@ -611,6 +507,7 @@ namespace DbxListFiles
                 { "t|test=", "test local files against Dropbox data file", v => { option = CommandOption.TestUserFiles; listFileName = v; }},
                 { "u|user=", "user's Dropbox directory", v => userRootPath = v },
                 { "o|other=", "other Dropbox directory", v => otherRootPath = v },
+                { "r|report=", "output report file", v => OutputWriter = new StreamWriter(v) },
                 { "v|verbose", "increase messages verbosity", v => Verbose = true },
                 { "h|?|help", "show this message and exit", v => helpFlag = true }
             };
@@ -676,6 +573,13 @@ namespace DbxListFiles
             {
                 await Console.Error.WriteLineAsync(string.Format("{0}: {1}", ProgramName, e.Message));
                 await Console.Error.WriteLineAsync(string.Format("Try `{0} --help' for more information.", ProgramName));
+            }
+            finally
+            {
+                if (OutputWriter != null)
+                {
+                    OutputWriter.Dispose();
+                }
             }
         }
 
