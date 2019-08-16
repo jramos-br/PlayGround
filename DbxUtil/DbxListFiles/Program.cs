@@ -13,23 +13,30 @@ namespace DbxListFiles
 {
     class Program
     {
-        private const int ReadBufferSize = 64 * 1024;
+        private const int ReadBufferSize = 128 * 1024;
         private bool Verbose = false;
 
         [Flags]
-        private enum TestUserFileStatus
+        private enum TestFileStatus
         {
             Success = 0,
-            FileNotFound = 1,
-            HashDiff = 2,
-            DateTimeDiff = 4,
-            SizeDiff = 8,
-            Exception = 16
+            FileNotFound = 0x01,
+            HashDiff = 0x02,
+            DateTimeDiff = 0x04,
+            SizeDiff = 0x08,
+            FileNotFoundOther = 0x10,
+            HashDiffOther = 0x20,
+            DateTimeDiffOther = 0x40,
+            SizeDiffOther = 0x80,
+            HashDiffBoth = 0x200,
+            DateTimeDiffBoth = 0x400,
+            SizeDiffBoth = 0x800,
+            Exception = 0x8000
         };
 
-        private class TestUserFileResult
+        private class TestFileResult
         {
-            public TestUserFileStatus Status = TestUserFileStatus.Success;
+            public TestFileStatus Status = TestFileStatus.Success;
             public string FileHash = string.Empty;
             public string ExceptionMessage = string.Empty;
             public DateTime LastWriteTime = DateTime.MinValue;
@@ -46,9 +53,9 @@ namespace DbxListFiles
             return long.Parse(value, NumberStyles.None, NumberFormatInfo.InvariantInfo);
         }
 
-        private async Task<TestUserFileResult> TestUserFile(string contentHash, DateTime clientModified, long size, string userFilePath)
+        private async Task<TestFileResult> TestUserFile(string contentHash, DateTime clientModified, long size, string userFilePath)
         {
-            var result = new TestUserFileResult();
+            var result = new TestFileResult();
 
             try
             {
@@ -56,7 +63,7 @@ namespace DbxListFiles
 
                 if (!fi.Exists)
                 {
-                    result.Status = TestUserFileStatus.FileNotFound;
+                    result.Status = TestFileStatus.FileNotFound;
                     return result;
                 }
 
@@ -66,12 +73,12 @@ namespace DbxListFiles
 
                 if (result.LastWriteTime != clientModified)
                 {
-                    result.Status |= TestUserFileStatus.DateTimeDiff;
+                    result.Status |= TestFileStatus.DateTimeDiff;
                 }
 
                 if (result.Size != size)
                 {
-                    result.Status |= TestUserFileStatus.SizeDiff;
+                    result.Status |= TestFileStatus.SizeDiff;
                 }
 
                 using (var hasher = new DropboxContentHasher())
@@ -92,13 +99,13 @@ namespace DbxListFiles
 
                     if (!string.Equals(result.FileHash, contentHash, StringComparison.OrdinalIgnoreCase))
                     {
-                        result.Status |= TestUserFileStatus.HashDiff;
+                        result.Status |= TestFileStatus.HashDiff;
                     }
                 }
             }
             catch (Exception ex)
             {
-                result.Status |= TestUserFileStatus.Exception;
+                result.Status |= TestFileStatus.Exception;
                 result.ExceptionMessage = ex.Message;
             }
 
@@ -111,10 +118,14 @@ namespace DbxListFiles
             {
                 int lineCount = 0;
                 int fileCount = 0;
+                int fileNotFoundCount = 0;
+                int fileFoundCount = 0;
                 int equalCount = 0;
-                int foundCount = 0;
-                int notFoundCount = 0;
+                int lastWriteTimeCount = 0;
+                int sizeCount = 0;
+                int hashCount = 0;
                 int errorCount = 0;
+
                 string line;
 
                 while ((line = await reader.ReadLineAsync()) != null)
@@ -152,52 +163,56 @@ namespace DbxListFiles
 
                     ++fileCount;
 
-                    if (result.Status == TestUserFileStatus.Success)
+                    if (result.Status == TestFileStatus.Success)
                     {
-                        ++foundCount;
+                        ++fileFoundCount;
                         ++equalCount;
 
                         if (Verbose)
                         {
-                            await Console.Out.WriteLineAsync(string.Format("{0}: OK", pathDisplay));
+                            await Console.Out.WriteLineAsync(string.Format("[U] {0}: OK", pathDisplay));
                         }
                     }
-                    else if (result.Status == TestUserFileStatus.FileNotFound)
+                    else if (result.Status == TestFileStatus.FileNotFound)
                     {
-                        ++notFoundCount;
+                        ++fileNotFoundCount;
 
                         if (Verbose)
                         {
-                            await Console.Error.WriteLineAsync(string.Format("{0}: file not found", pathDisplay));
+                            await Console.Error.WriteLineAsync(string.Format("[U] {0}: file not found", pathDisplay));
                         }
                     }
                     else
                     {
-                        ++foundCount;
-                        ++errorCount;
+                        ++fileFoundCount;
 
                         var sb = new StringBuilder();
 
+                        sb.Append("[U] ");
                         sb.Append(pathDisplay);
                         sb.Append(":");
 
-                        if ((result.Status & TestUserFileStatus.DateTimeDiff) != 0)
+                        if ((result.Status & TestFileStatus.DateTimeDiff) != 0)
                         {
-                            sb.AppendFormat(" DateTimeError: [L={0} D={1}]", result.LastWriteTime, clientModified);
+                            ++lastWriteTimeCount;
+                            sb.AppendFormat(" DateTimeError: [U={0} D={1}]", result.LastWriteTime, clientModified);
                         }
 
-                        if ((result.Status & TestUserFileStatus.SizeDiff) != 0)
+                        if ((result.Status & TestFileStatus.SizeDiff) != 0)
                         {
-                            sb.AppendFormat(" SizeError: [L={0} D={1}]", result.Size, size);
+                            ++sizeCount;
+                            sb.AppendFormat(" SizeError: [U={0} D={1}]", result.Size, size);
                         }
 
-                        if ((result.Status & TestUserFileStatus.HashDiff) != 0)
+                        if ((result.Status & TestFileStatus.HashDiff) != 0)
                         {
-                            sb.AppendFormat(" HashError: [L={0} D={1}]", result.FileHash, contentHash);
+                            ++hashCount;
+                            sb.AppendFormat(" HashError: [U={0} D={1}]", result.FileHash, contentHash);
                         }
 
-                        if ((result.Status & TestUserFileStatus.Exception) != 0)
+                        if ((result.Status & TestFileStatus.Exception) != 0)
                         {
+                            ++errorCount;
                             sb.AppendFormat(" Exception: [{0}]", result.ExceptionMessage);
                         }
 
@@ -205,11 +220,308 @@ namespace DbxListFiles
                     }
                 }
 
-                await Console.Out.WriteLineAsync(string.Format("Files in Dropbox.......................: {0}", fileCount));
-                await Console.Out.WriteLineAsync(string.Format("Files not found in local Dropbox folder: {0}", notFoundCount));
-                await Console.Out.WriteLineAsync(string.Format("Files found in local Dropbox folder....: {0}", foundCount));
-                await Console.Out.WriteLineAsync(string.Format("Files with same date, size and content.: {0}", equalCount));
-                await Console.Out.WriteLineAsync(string.Format("Files with differences.................: {0}", errorCount));
+                await Console.Out.WriteLineAsync(string.Format("Files in Dropbox..............................: {0}", fileCount));
+                await Console.Out.WriteLineAsync(string.Format("Files not found in 'user' folder..............: {0}", fileNotFoundCount));
+                await Console.Out.WriteLineAsync(string.Format("Files found in 'user' folder..................: {0}", fileFoundCount));
+                await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCount));
+                await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCount));
+                await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCount));
+                await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCount));
+                await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", errorCount));
+            }
+        }
+
+        private async Task TestUserFiles(string listFileName, string userRootPath, string otherRootPath)
+        {
+            int totalLineCount = 0;
+
+            using (var reader = new StreamReader(listFileName))
+            {
+                while (await reader.ReadLineAsync() != null)
+                {
+                    ++totalLineCount;
+                }
+            }
+
+            using (var reader = new StreamReader(listFileName))
+            {
+                int lineCount = 0;
+                int fileCount = 0;
+
+                int fileNotFoundCountUser = 0;
+                int fileFoundCountUser = 0;
+                int equalCountUser = 0;
+                int lastWriteTimeCountUser = 0;
+                int sizeCountUser = 0;
+                int hashCountUser = 0;
+                int errorCountUser = 0;
+
+                int fileNotFoundCountOther = 0;
+                int fileFoundCountOther = 0;
+                int equalCountOther = 0;
+                int lastWriteTimeCountOther = 0;
+                int sizeCountOther = 0;
+                int hashCountOther = 0;
+                int errorCountOther = 0;
+
+                int fileFoundCountBoth = 0;
+                int equalCountOtherBoth = 0;
+                int lastWriteTimeCountBoth = 0;
+                int sizeCountBoth = 0;
+                int hashCountBoth = 0;
+
+                int progress = -1;
+
+                string line;
+
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    ++lineCount;
+
+                    if (line[0] == '#')
+                    {
+                        continue;
+                    }
+
+                    if (!Console.IsOutputRedirected)
+                    {
+                        var current = (int)(lineCount * 100.0 / totalLineCount);
+
+                        if (current != progress)
+                        {
+                            progress = current;
+                            Console.CursorLeft = 0;
+                            await Console.Out.WriteAsync(string.Format("{0}% ", progress));
+                        }
+                    }
+
+                    // d7d3682cf1ca9a8e4d272cd72edcc709df75f2ee9cad71183fd50f210eb0cffa 2011-03-20T07:50:10 2011-03-20T07:50:10 268860 /Getting Started.pdf
+                    //                                                                a^                  b^                  c^     d^
+
+                    var a = line.IndexOf(' ');
+                    var b = line.IndexOf(' ', a + 1);
+                    var c = line.IndexOf(' ', b + 1);
+                    var d = line.IndexOf(' ', c + 1);
+
+                    if (!(a == 64 && b == 84 && c == 104 && d > c + 1))
+                    {
+                        await Console.Error.WriteLineAsync(string.Format("{0}: invalid line", lineCount));
+                        continue;
+                    }
+
+                    var contentHash = line.Substring(0, a);
+                    var serverModified = ParseDateTimeAsUtc(line.Substring(a + 1, b - (a + 1)));
+                    var clientModified = ParseDateTimeAsUtc(line.Substring(b + 1, c - (b + 1)));
+                    var size = ParseNumberAsLong(line.Substring(c + 1, d - (c + 1)));
+                    var pathDisplay = line.Substring(d + 2); // Removes leading '/'
+
+                    var userFilePath = userRootPath != null ? Path.Combine(userRootPath, pathDisplay) : null;
+                    var otherFilePath = otherRootPath != null ? Path.Combine(otherRootPath, pathDisplay) : null;
+
+                    var tasks = new Task<TestFileResult>[]
+                    {
+                        userFilePath != null ? TestUserFile(contentHash, clientModified, size, userFilePath) : Task.FromResult<TestFileResult>(null),
+                        otherFilePath != null ? TestUserFile(contentHash, clientModified, size, otherFilePath) : Task.FromResult<TestFileResult>(null)
+                    };
+
+                    var results = await Task.WhenAll(tasks);
+
+                    ++fileCount;
+
+                    if (results[0] != null)
+                    {
+                        if (results[0].Status == TestFileStatus.Success)
+                        {
+                            ++fileFoundCountUser;
+                            ++equalCountUser;
+
+                            if (Verbose)
+                            {
+                                await Console.Out.WriteLineAsync(string.Format("[U] {0}: OK", pathDisplay));
+                            }
+                        }
+                        else if (results[0].Status == TestFileStatus.FileNotFound)
+                        {
+                            ++fileNotFoundCountUser;
+
+                            if (Verbose)
+                            {
+                                await Console.Error.WriteLineAsync(string.Format("[U] {0}: file not found", pathDisplay));
+                            }
+                        }
+                        else
+                        {
+                            ++fileFoundCountUser;
+
+                            var sb = new StringBuilder();
+
+                            sb.Append("[U] ");
+                            sb.Append(pathDisplay);
+                            sb.Append(":");
+
+                            if ((results[0].Status & TestFileStatus.DateTimeDiff) != 0)
+                            {
+                                ++lastWriteTimeCountUser;
+                                sb.AppendFormat(" DateTimeError: [U={0} D={1}]", results[0].LastWriteTime, clientModified);
+                            }
+
+                            if ((results[0].Status & TestFileStatus.SizeDiff) != 0)
+                            {
+                                ++sizeCountUser;
+                                sb.AppendFormat(" SizeError: [U={0} D={1}]", results[0].Size, size);
+                            }
+
+                            if ((results[0].Status & TestFileStatus.HashDiff) != 0)
+                            {
+                                ++hashCountUser;
+                                sb.AppendFormat(" HashError: [U={0} D={1}]", results[0].FileHash, contentHash);
+                            }
+
+                            if ((results[0].Status & TestFileStatus.Exception) != 0)
+                            {
+                                ++errorCountUser;
+                                sb.AppendFormat(" Exception: [{0}]", results[0].ExceptionMessage);
+                            }
+
+                            await Console.Error.WriteLineAsync(sb.ToString());
+                        }
+                    }
+
+                    if (results[1] != null)
+                    {
+                        if (results[1].Status == TestFileStatus.Success)
+                        {
+                            ++fileFoundCountOther;
+                            ++equalCountOther;
+
+                            if (Verbose)
+                            {
+                                await Console.Out.WriteLineAsync(string.Format("[O] {0}: OK", pathDisplay));
+                            }
+                        }
+                        else if (results[1].Status == TestFileStatus.FileNotFound)
+                        {
+                            ++fileNotFoundCountOther;
+
+                            if (Verbose)
+                            {
+                                await Console.Error.WriteLineAsync(string.Format("[O] {0}: file not found", pathDisplay));
+                            }
+                        }
+                        else
+                        {
+                            ++fileFoundCountOther;
+
+                            var sb = new StringBuilder();
+
+                            sb.Append("[O] ");
+                            sb.Append(pathDisplay);
+                            sb.Append(":");
+
+                            if ((results[1].Status & TestFileStatus.DateTimeDiff) != 0)
+                            {
+                                ++lastWriteTimeCountOther;
+                                sb.AppendFormat(" DateTimeError: [O={0} D={1}]", results[1].LastWriteTime, clientModified);
+                            }
+
+                            if ((results[1].Status & TestFileStatus.SizeDiff) != 0)
+                            {
+                                ++sizeCountOther;
+                                sb.AppendFormat(" SizeError: [O={0} D={1}]", results[1].Size, size);
+                            }
+
+                            if ((results[1].Status & TestFileStatus.HashDiff) != 0)
+                            {
+                                ++hashCountOther;
+                                sb.AppendFormat(" HashError: [O={0} D={1}]", results[1].FileHash, contentHash);
+                            }
+
+                            if ((results[1].Status & TestFileStatus.Exception) != 0)
+                            {
+                                ++errorCountOther;
+                                sb.AppendFormat(" Exception: [{0}]", results[1].ExceptionMessage);
+                            }
+
+                            await Console.Error.WriteLineAsync(sb.ToString());
+                        }
+                    }
+
+                    if (results[0] != null && results[1] != null)
+                    {
+                        if (results[0].Status != TestFileStatus.FileNotFound && (results[0].Status & TestFileStatus.Exception) == 0 &&
+                            results[1].Status != TestFileStatus.FileNotFound && (results[1].Status & TestFileStatus.Exception) == 0)
+                        {
+                            ++fileFoundCountBoth;
+
+                            var sbx = new StringBuilder();
+
+                            if (results[0].LastWriteTime != results[1].LastWriteTime)
+                            {
+                                ++lastWriteTimeCountBoth;
+                                sbx.AppendFormat(" DateTimeError: [U={0} O={1}]", results[0].LastWriteTime, results[1].LastWriteTime);
+                            }
+
+                            if (results[0].Size != results[1].Size)
+                            {
+                                ++sizeCountBoth;
+                                sbx.AppendFormat(" SizeError: [U={0} O={1}]", results[0].Size, results[1].Size);
+                            }
+
+                            if (results[0].FileHash != results[1].FileHash)
+                            {
+                                ++hashCountBoth;
+                                sbx.AppendFormat(" HashError: [U={0} O={1}]", results[0].FileHash, results[1].FileHash);
+                            }
+
+                            if (sbx.Length == 0)
+                            {
+                                ++equalCountOtherBoth;
+                            }
+                            else
+                            {
+                                await Console.Error.WriteLineAsync("[X] " + pathDisplay + ":" + sbx.ToString());
+                            }
+                        }
+                    }
+                }
+
+                await Console.Out.WriteLineAsync(string.Format("Files in Dropbox..............................: {0}", fileCount));
+
+                if (userRootPath != null)
+                {
+                    await Console.Out.WriteLineAsync();
+                    await Console.Out.WriteLineAsync(string.Format("Files not found in 'user' folder..............: {0}", fileNotFoundCountUser));
+                    await Console.Out.WriteLineAsync();
+                    await Console.Out.WriteLineAsync(string.Format("Files found in 'user' folder..................: {0}", fileFoundCountUser));
+                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCountUser));
+                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCountUser));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCountUser));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCountUser));
+                    await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", errorCountUser));
+                }
+
+                if (otherRootPath != null)
+                {
+                    await Console.Out.WriteLineAsync();
+                    await Console.Out.WriteLineAsync(string.Format("Files not found in 'other' folder.............: {0}", fileNotFoundCountOther));
+                    await Console.Out.WriteLineAsync();
+                    await Console.Out.WriteLineAsync(string.Format("Files found in 'other' folder.................: {0}", fileFoundCountOther));
+                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCountOther));
+                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCountOther));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCountOther));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCountOther));
+                    await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", errorCountOther));
+                }
+
+                if (userRootPath != null && otherRootPath != null)
+                {
+                    await Console.Out.WriteLineAsync();
+                    await Console.Out.WriteLineAsync(string.Format("Files read in both 'user' and 'other' folders.: {0}", fileFoundCountBoth));
+                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCountOtherBoth));
+                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCountBoth));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCountBoth));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCountBoth));
+                }
             }
         }
 
@@ -287,6 +599,7 @@ namespace DbxListFiles
             CommandOption option = CommandOption.None;
             string listFileName = null;
             string userRootPath = null;
+            string otherRootPath = null;
             bool helpFlag = false;
 
             // dbxListFiles -c Dropbox.txt
@@ -297,6 +610,7 @@ namespace DbxListFiles
                 { "c|create=", "create Dropbox data file", v => { option = CommandOption.CreateListFile; listFileName = v; } },
                 { "t|test=", "test local files against Dropbox data file", v => { option = CommandOption.TestUserFiles; listFileName = v; }},
                 { "u|user=", "user's Dropbox directory", v => userRootPath = v },
+                { "o|other=", "other Dropbox directory", v => otherRootPath = v },
                 { "v|verbose", "increase messages verbosity", v => Verbose = true },
                 { "h|?|help", "show this message and exit", v => helpFlag = true }
             };
@@ -328,7 +642,7 @@ namespace DbxListFiles
                 {
                     case CommandOption.CreateListFile:
 
-                        if (string.IsNullOrEmpty(listFileName) || !string.IsNullOrEmpty(userRootPath))
+                        if (string.IsNullOrEmpty(listFileName) || !string.IsNullOrEmpty(userRootPath) || !string.IsNullOrEmpty(otherRootPath))
                         {
                             throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
                         }
@@ -343,7 +657,15 @@ namespace DbxListFiles
                             throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
                         }
 
-                        await TestUserFiles(listFileName, userRootPath);
+                        if (string.IsNullOrEmpty(otherRootPath))
+                        {
+                            await TestUserFiles(listFileName, userRootPath, null);
+                        }
+                        else
+                        {
+                            await TestUserFiles(listFileName, userRootPath, otherRootPath);
+                        }
+
                         break;
 
                     default:
