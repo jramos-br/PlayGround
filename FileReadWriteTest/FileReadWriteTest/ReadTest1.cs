@@ -4,24 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static FileReadWriteTest.Global;
 
 namespace FileReadWriteTest
 {
-    class ReadTest1
+    using static FileReadWriteTest.Global;
+
+    class ReadTest1 : TestBase
     {
-        private ReadTest1() { }
-
-        private static void Run(string path, MyHashAlgorithm hash, int bufferSize, FileOptions options)
+        private void Run(string path, MyHashAlgorithm hash, int bufferSize, FileOptions options)
         {
-            byte[] buffer = new byte[bufferSize];
-            int bytesRead;
-
             using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultFileStreamBufferSize, options))
             {
+                var buffer = new byte[bufferSize];
+                int bytesRead;
+
                 hash.Initialize();
 
-                while ((bytesRead = fs.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytesRead = fs.Read(buffer, 0, bufferSize)) > 0)
                 {
                     hash.TransformBlock(buffer, 0, bytesRead);
                 }
@@ -30,7 +29,7 @@ namespace FileReadWriteTest
             }
         }
 
-        public static void Run(Action<string, Action<string, MyHashAlgorithm>> action)
+        public override void Run(Action<string, Action<string, MyHashAlgorithm>> action)
         {
             action(nameof(ReadTest1) + "A1S", (path, hash) => Run(path, hash, ReadBufferSize, FileOptions.None));
             action(nameof(ReadTest1) + "A4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, FileOptions.None));

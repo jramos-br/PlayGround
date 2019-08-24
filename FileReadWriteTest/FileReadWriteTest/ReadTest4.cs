@@ -1,80 +1,93 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FileReadWriteTest
 {
     using static FileReadWriteTest.Global;
 
-    class ReadTest4
+    class ReadTest4 : TestBase
     {
-        private ReadTest4() { }
+        private static readonly bool _flag = false;
 
-        private const int DefaultFileStreamBufferSize = 4096;
-        private const int BufferSize = 256 * 1024;
-
-        private async Task<int> RunAsync(string path, FileOptions options)
+        static ReadTest4()
         {
-            byte[] buffer = new byte[BufferSize * 2];
-            int sum = 0;
-
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultFileStreamBufferSize, options))
+            if (_flag)
             {
-                var buflen = new int[2] { BufferSize, BufferSize };
-                var bufpos = new int[2] { 0, BufferSize };
-                var tasks = new Task<int>[2];
-                int curr = 0;
-                int next;
-                int bytesRead;
+                ThreadPool.GetMinThreads(out int workerThreads, out int completionPortThreads);
+                Console.Out.WriteLine("GetMinThreads: workerThreads={0} completionPortThreads={1}", workerThreads, completionPortThreads);
+                ThreadPool.GetMaxThreads(out workerThreads, out completionPortThreads);
+                Console.Out.WriteLine("GetMaxThreads: workerThreads={0} completionPortThreads={1}", workerThreads, completionPortThreads);
+                ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+                Console.Out.WriteLine("GetAvailableThreads: workerThreads={0} completionPortThreads={1}", workerThreads, completionPortThreads);
+            }
+        }
 
-                tasks[curr] = fs.ReadAsync(buffer, bufpos[curr], buflen[curr]);
+        private class Buffer
+        {
+            public readonly int Offset;
+            public int Length;
 
-                while ((bytesRead = await tasks[curr]) > 0)
+            public Buffer(int offset)
+            {
+                Offset = offset;
+            }
+        }
+
+        private void Run(string path, MyHashAlgorithm hash, int bufferSize, FileOptions options)
+        {
+            using (var buffers = new BlockingCollection<Buffer>())
+            using (var queue = new BlockingCollection<Buffer>())
+            {
+                var buffer = new byte[bufferSize * 2];
+
+                for (int offset = 0; offset < buffer.Length; offset += bufferSize)
                 {
-                    next = curr ^ 1;
-                    tasks[next] = fs.ReadAsync(buffer, bufpos[next], buflen[next]);
-
-                    for (int i = bufpos[curr], n = i + bytesRead; i < n; ++i)
-                    {
-                        sum = (sum << 1) ^ buffer[i];
-                    }
-
-                    curr = next;
+                    buffers.Add(new Buffer(offset));
                 }
+
+                ThreadPool.QueueUserWorkItem((state) =>
+                {
+                    using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultFileStreamBufferSize, options))
+                    {
+                        Buffer next;
+
+                        do
+                        {
+                            next = buffers.Take();
+                            next.Length = fs.Read(buffer, next.Offset, bufferSize);
+                            queue.Add(next);
+                        }
+                        while (next.Length > 0);
+                    }
+                });
+
+                hash.Initialize();
+
+                for (var next = queue.Take(); next.Length > 0; next = queue.Take())
+                {
+                    hash.TransformBlock(buffer, next.Offset, next.Length);
+                    buffers.Add(next);
+                }
+
+                hash.TransformFinalBlock(buffer, 0, 0);
             }
-
-            return sum;
         }
 
-        private int Run(string path, FileOptions options)
+        public override void Run(Action<string, Action<string, MyHashAlgorithm>> action)
         {
-            return RunAsync(path, options).GetAwaiter().GetResult();
-        }
+            action(nameof(ReadTest4) + "A1S", (path, hash) => Run(path, hash, ReadBufferSize, FileOptions.None));
+            action(nameof(ReadTest4) + "A4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, FileOptions.None));
+            action(nameof(ReadTest4) + "A8S", (path, hash) => Run(path, hash, ReadBufferSize * 8, FileOptions.None));
 
-        public static void Run(string func, string path, int repeat, FileOptions options)
-        {
-            var test = new ReadTest4();
-            var list = new List<long>();
-
-            for (var i = 0; i < repeat; ++i)
-            {
-                //int sum = 0;
-                //var elapsed = MyCrono.Elapsed(() => sum = test.Run(args[i], options));
-                //Console.Out.WriteLine("{0}: {1}: {2} {3:X8}", func, args[i], elapsed, sum);
-                //list.Add(elapsed.Ticks);
-            }
-
-            var average = new TimeSpan(Convert.ToInt64(list.Average()));
-            Console.Out.WriteLine("{0}: AVERAGE {1}", func, average);
-        }
-
-        public static void Run(string path, int repeat)
-        {
-            //Run(nameof(ReadTest4) + "A", args, FileOptions.SequentialScan);
-            //Run(nameof(ReadTest4) + "B", args, FileOptions.SequentialScan | FileOptions.Asynchronous);
+            action(nameof(ReadTest4) + "B1S", (path, hash) => Run(path, hash, ReadBufferSize, FileOptions.SequentialScan));
+            action(nameof(ReadTest4) + "B4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, FileOptions.SequentialScan));
+            action(nameof(ReadTest4) + "B8S", (path, hash) => Run(path, hash, ReadBufferSize * 8, FileOptions.SequentialScan));
         }
     }
 }

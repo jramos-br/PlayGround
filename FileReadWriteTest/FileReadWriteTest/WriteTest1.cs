@@ -9,20 +9,18 @@ namespace FileReadWriteTest
 {
     using static FileReadWriteTest.Global;
 
-    class WriteTest1
+    class WriteTest1 : TestBase
     {
-        private WriteTest1() { }
-
         private const int RandomSeed = 42;
 
         private static void Run(string path, MyHashAlgorithm hash, int bufferSize, FileOptions options)
         {
-            var random = new Random(RandomSeed);
-            byte[] buffer = new byte[WriteBufferSize];
-            int bytesWritten = 0;
-
             using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, DefaultFileStreamBufferSize, options))
             {
+                var random = new Random(RandomSeed);
+                var buffer = new byte[bufferSize];
+                int bytesWritten = 0;
+
                 hash.Initialize();
 
                 while (bytesWritten < TestFileSize)
@@ -38,9 +36,9 @@ namespace FileReadWriteTest
             }
         }
 
-        public static void Run(Action<string, Action<string, MyHashAlgorithm>> action)
+        public override void Run(Action<string, Action<string, MyHashAlgorithm>> action)
         {
-            action(nameof(WriteTest1), (path, hash) => Run(path, hash, ReadBufferSize, FileOptions.None));
+            action(nameof(WriteTest1), (path, hash) => Run(path, hash, WriteBufferSize, FileOptions.None));
         }
     }
 }

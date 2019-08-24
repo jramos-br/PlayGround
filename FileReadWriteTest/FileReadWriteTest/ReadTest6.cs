@@ -2,23 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FileReadWriteTest
 {
-    using System.Runtime.InteropServices;
     using static FileReadWriteTest.Global;
 
-    class ReadTest6
+    class ReadTest6 : TestBase
     {
-        private ReadTest6() { }
-
-        private static void Run(string path, MyHashAlgorithm hash, int bufferSize, Win32.FileCreationFlags dwFlags)
+        private void Run(string path, MyHashAlgorithm hash, int bufferSize, Win32.FileCreationFlags dwFlags)
         {
             using (var buffer = new Win32.UnmanagedBuffer(bufferSize))
             {
-                byte[] bytes = new byte[4096];
+                var bytes = new byte[4096];
                 int bytesRead;
 
                 var dwDesiredAccess = Win32.DesiredAccess.GenericRead;
@@ -50,7 +48,7 @@ namespace FileReadWriteTest
             }
         }
 
-        public static void Run(Action<string, Action<string, MyHashAlgorithm>> action)
+        public override void Run(Action<string, Action<string, MyHashAlgorithm>> action)
         {
             action(nameof(ReadTest6) + "A1S", (path, hash) => Run(path, hash, ReadBufferSize, Win32.FileCreationFlags.None));
             action(nameof(ReadTest6) + "A4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, Win32.FileCreationFlags.None));
@@ -63,6 +61,10 @@ namespace FileReadWriteTest
             action(nameof(ReadTest6) + "C1S", (path, hash) => Run(path, hash, ReadBufferSize, Win32.FileCreationFlags.NoBuffering));
             action(nameof(ReadTest6) + "C4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, Win32.FileCreationFlags.NoBuffering));
             action(nameof(ReadTest6) + "C8S", (path, hash) => Run(path, hash, ReadBufferSize * 8, Win32.FileCreationFlags.NoBuffering));
+
+            action(nameof(ReadTest6) + "D1S", (path, hash) => Run(path, hash, ReadBufferSize, Win32.FileCreationFlags.NoBuffering | Win32.FileCreationFlags.SequentialScan));
+            action(nameof(ReadTest6) + "D4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, Win32.FileCreationFlags.NoBuffering | Win32.FileCreationFlags.SequentialScan));
+            action(nameof(ReadTest6) + "D8S", (path, hash) => Run(path, hash, ReadBufferSize * 8, Win32.FileCreationFlags.NoBuffering | Win32.FileCreationFlags.SequentialScan));
         }
     }
 }

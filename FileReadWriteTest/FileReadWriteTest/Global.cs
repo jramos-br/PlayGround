@@ -13,6 +13,7 @@ namespace FileReadWriteTest
         public const int ReadBufferSize = 64 * 1024;
         public const int WriteBufferSize = 64 * 1024;
         public const int TestFileSize = 768 * 1024 * 1024 - 23;
-        public const int NTESTS = 8;
+        public const int WRITETESTS = 1;
+        public const int READTESTS = 7;
     }
 }

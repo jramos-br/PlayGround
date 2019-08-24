@@ -9,31 +9,26 @@ namespace FileReadWriteTest
 {
     using static FileReadWriteTest.Global;
 
-    class ReadTest2
+    class ReadTest2 : TestBase
     {
-        private ReadTest2() { }
-
-        private static void Run(string path, MyHashAlgorithm hash, int bufferSize, FileOptions options)
+        private void Run(string path, MyHashAlgorithm hash, int bufferSize, FileOptions options)
         {
-            byte[] buffer = new byte[bufferSize * 2];
-            int bytesRead;
-
             using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultFileStreamBufferSize, options))
             {
-                var buflen = new int[2] { bufferSize, bufferSize };
+                var buffer = new byte[bufferSize * 2];
                 var bufpos = new int[2] { 0, bufferSize };
                 var tasks = new IAsyncResult[2];
+                int bytesRead;
                 int curr = 0;
-                int next;
 
-                tasks[curr] = fs.BeginRead(buffer, bufpos[curr], buflen[curr], null, null);
+                tasks[curr] = fs.BeginRead(buffer, bufpos[curr], bufferSize, null, null);
 
                 hash.Initialize();
 
                 while ((bytesRead = fs.EndRead(tasks[curr])) > 0)
                 {
-                    next = curr ^ 1;
-                    tasks[next] = fs.BeginRead(buffer, bufpos[next], buflen[next], null, null);
+                    var next = curr ^ 1;
+                    tasks[next] = fs.BeginRead(buffer, bufpos[next], bufferSize, null, null);
                     hash.TransformBlock(buffer, bufpos[curr], bytesRead);
                     curr = next;
                 }
@@ -42,7 +37,7 @@ namespace FileReadWriteTest
             }
         }
 
-        public static void Run(Action<string, Action<string, MyHashAlgorithm>> action)
+        public override void Run(Action<string, Action<string, MyHashAlgorithm>> action)
         {
             action(nameof(ReadTest2) + "A1S", (path, hash) => Run(path, hash, ReadBufferSize, FileOptions.None));
             action(nameof(ReadTest2) + "A4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, FileOptions.None));

@@ -57,6 +57,8 @@
     <Compile Include="ReadTest4.cs" />
     <Compile Include="ReadTest5.cs" />
     <Compile Include="ReadTest6.cs" />
+    <Compile Include="ReadTest7.cs" />
+    <Compile Include="TestBase.cs" />
     <Compile Include="Win32.cs" />
     <Compile Include="WriteTest1.cs" />
   </ItemGroup>

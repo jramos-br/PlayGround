@@ -9,13 +9,11 @@ namespace FileReadWriteTest
 {
     using static FileReadWriteTest.Global;
 
-    class ReadTest5
+    class ReadTest5 : TestBase
     {
-        private ReadTest5() { }
-
-        private static void Run(string path, MyHashAlgorithm hash, int bufferSize, Win32.FileCreationFlags dwFlags)
+        private void Run(string path, MyHashAlgorithm hash, int bufferSize, Win32.FileCreationFlags dwFlags)
         {
-            using (var buffer = new Win32.PinnedArray<byte>(bufferSize, true))
+            using (var buffer = new Win32.PinnableArray<byte>(bufferSize))
             {
                 int bytesRead;
 
@@ -29,17 +27,21 @@ namespace FileReadWriteTest
                 {
                     hash.Initialize();
 
+                    buffer.Pin();
+
                     while ((bytesRead = Win32.ReadFile(hFile, buffer, bufferSize)) > 0)
                     {
                         hash.TransformBlock(buffer, 0, bytesRead);
                     }
+
+                    buffer.Unpin();
 
                     hash.TransformFinalBlock(buffer, 0, 0);
                 }
             }
         }
 
-        public static void Run(Action<string, Action<string, MyHashAlgorithm>> action)
+        public override void Run(Action<string, Action<string, MyHashAlgorithm>> action)
         {
             action(nameof(ReadTest5) + "A1S", (path, hash) => Run(path, hash, ReadBufferSize, Win32.FileCreationFlags.None));
             action(nameof(ReadTest5) + "A4S", (path, hash) => Run(path, hash, ReadBufferSize * 4, Win32.FileCreationFlags.None));

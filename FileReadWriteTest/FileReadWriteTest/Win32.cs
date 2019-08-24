@@ -120,14 +120,14 @@ namespace FileReadWriteTest
             Virtual = NativeMethods.FILE_ATTRIBUTE_VIRTUAL
         }
 
-        public sealed class PinnedArray<T> : IDisposable
+        public sealed class Pinnable<T> : IDisposable where T : new()
         {
-            public PinnedArray(int length)
+            public Pinnable()
             {
-                _buffer = new T[length];
+                _data = new T();
             }
 
-            public PinnedArray(int length, bool pin) : this(length)
+            public Pinnable(bool pin)
             {
                 if (pin)
                 {
@@ -135,14 +135,14 @@ namespace FileReadWriteTest
                 }
             }
 
-            private T[] _buffer { get; set; }
-            private GCHandle _handle { get; set; }
+            private T _data;
+            private GCHandle _handle;
 
-            public void Pin() => _handle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
+            public void Pin() => _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
             public void Unpin() => _handle.Free();
 
-            public static implicit operator T[] (PinnedArray<T> array) => array._buffer;
-            public static implicit operator IntPtr(PinnedArray<T> array) => array._handle.AddrOfPinnedObject();
+            public static implicit operator T(Pinnable<T> instance) => instance._data;
+            public static implicit operator IntPtr(Pinnable<T> instance) => instance._handle.AddrOfPinnedObject();
 
             public void Dispose()
             {
@@ -151,8 +151,59 @@ namespace FileReadWriteTest
                     _handle.Free();
                 }
 
-                _buffer = null;
+                _data = default(T);
             }
+        }
+
+        public sealed class PinnableArray<T> : IDisposable
+        {
+            public PinnableArray(int length)
+            {
+                _data = new T[length];
+            }
+
+            public PinnableArray(int length, bool pin) : this(length)
+            {
+                if (pin)
+                {
+                    Pin();
+                }
+            }
+
+            private T[] _data;
+            private GCHandle _handle;
+
+            public void Pin() => _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
+            public void Unpin() => _handle.Free();
+
+            public static implicit operator T[] (PinnableArray<T> array) => array._data;
+            public static implicit operator IntPtr(PinnableArray<T> array) => array._handle.AddrOfPinnedObject();
+
+            public void Dispose()
+            {
+                if (_handle.IsAllocated)
+                {
+                    _handle.Free();
+                }
+
+                _data = null;
+            }
+        }
+
+        public class Overlapped
+        {
+            public NativeMethods.OVERLAPPED overlapped = NativeMethods.OVERLAPPED.Create();
+
+            public IntPtr InternalLow { get => overlapped.Internal; set => overlapped.Internal = value; }
+            public IntPtr InternalHigh { get => overlapped.InternalHigh; set => overlapped.InternalHigh = value; }
+            public uint OffsetLow { get => overlapped.Offset; set => overlapped.Offset = value; }
+            public uint OffsetHigh { get => overlapped.OffsetHigh; set => overlapped.OffsetHigh = value; }
+            public ulong Offset
+            {
+                get { return ((ulong)overlapped.OffsetHigh << 32) | overlapped.Offset; }
+                set { overlapped.Offset = unchecked((uint)value); overlapped.OffsetHigh = (uint)(value >> 32); }
+            }
+            public IntPtr EventHandle { get => overlapped.hEvent; set => overlapped.hEvent = value; }
         }
 
         public class SecurityAttributes
@@ -188,6 +239,16 @@ namespace FileReadWriteTest
         }
 
         public static int ReadFile(SafeFileHandle hFile, IntPtr lpBuffer, int nNumberOfBytesToRead)
+        {
+            if (!NativeMethods.ReadFile(hFile, lpBuffer, checked((uint)nNumberOfBytesToRead), out uint lpNumberOfBytesRead, IntPtr.Zero))
+            {
+                ThrowExceptionForLastWin32Error();
+            }
+
+            return checked((int)lpNumberOfBytesRead);
+        }
+
+        public static int ReadFile(SafeFileHandle hFile, IntPtr lpBuffer, int nNumberOfBytesToRead, ulong offset, SafeWaitHandle hEvent)
         {
             if (!NativeMethods.ReadFile(hFile, lpBuffer, checked((uint)nNumberOfBytesToRead), out uint lpNumberOfBytesRead, IntPtr.Zero))
             {

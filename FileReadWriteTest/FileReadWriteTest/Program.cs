@@ -10,86 +10,261 @@ namespace FileReadWriteTest
 
     class Program
     {
-        private static void WriteTest(string name, string[] args, Action<string, MyHashAlgorithm> test)
+        private static readonly bool RunWarmupWriteTest = true;
+        private static readonly bool RunWarmupReadTest = true;
+        private static readonly bool RunWriteTest = false;
+        private static readonly bool RunReadTest = false;
+        private static readonly bool DisplayWarmupWriteTest = true;
+        private static readonly bool DisplayWarmupReadTest = true;
+        private static readonly bool DisplayWriteTest = DisplayWriteTestStep | DisplayWriteTestTime;
+        private static readonly bool DisplayWriteTestStep = false;
+        private static readonly bool DisplayWriteTestTime = true;
+        private static readonly bool DisplayReadTest = DisplayReadTestStep | DisplayReadTestTime;
+        private static readonly bool DisplayReadTestStep = false;
+        private static readonly bool DisplayReadTestTime = true;
+        private static readonly bool DisplaySortedResults = true;
+        private static readonly bool ReadTestClearFileCache = false;
+        private static readonly bool ReadTestRunGarbageCollector = true;
+
+        private static readonly string Separator = "------------------------------------------------------------------------------";
+
+        private static readonly List<(string header, TimeSpan elapsed, TimeSpan average)> Results = new List<(string header, TimeSpan elapsed, TimeSpan average)>();
+
+        private static string FirstHashResult = null;
+
+        private static MyHashAlgorithm GetMyHashAlgorithm()
+        {
+            return new MySimpleHash();
+        }
+
+        public static void CalcStats(List<long> values, out long lsum, out long lavg, out long lstd)
+        {
+            int count = values.Count;
+
+            if (count == 0)
+                throw new ArgumentOutOfRangeException();
+
+            double avg = values.Average();
+            double sum = values.Sum(v => (v - avg) * (v - avg));
+            double std = Math.Sqrt(sum / count);
+
+            lavg = Convert.ToInt64(avg);
+            lsum = Convert.ToInt64(sum);
+            lstd = Convert.ToInt64(std);
+        }
+
+        private delegate void TestFunc(string name, string[] args, MyHashAlgorithm hash, Action<string, MyHashAlgorithm> test);
+
+        private static void WarmupWriteTest(string name, string[] args, MyHashAlgorithm hash, Action<string, MyHashAlgorithm> test)
         {
             for (var i = 0; i < args.Length; ++i)
             {
-                var header = $"{name}: {args[i]}";
-                var ticks = new List<long>();
-
-                for (int n = 0; n < 1; ++n)
+                if (DisplayWarmupReadTest)
                 {
-                    using (MyHashAlgorithm hash = new MySimpleHash())
-                    {
-                        var elapsed = MyCrono.Elapsed(() => test(args[i], hash));
-                        Console.Out.WriteLine("{0}: ELAPSED {1} HASH {2}", header, elapsed, hash.FormatHash());
-                        ticks.Add(elapsed.Ticks);
-                    }
+                    var header = args.Length > 1 ? $"{name}: {args[i]}" : name;
+
+                    Console.Out.WriteLine("{0}: WRITE TEST WARM UP", header);
                 }
 
-                var sum = new TimeSpan(Convert.ToInt64(ticks.Sum()));
-                var average = new TimeSpan(Convert.ToInt64(ticks.Average()));
-
-                //Console.Out.WriteLine("{0}: ELAPSED {1} AVERAGE {2}", header, sum, average);
+                test(args[i], hash);
             }
         }
 
-        private static void WriteTest(string[] args)
-        {
-            WriteTest1.Run((name, test) => WriteTest(name, args, test));
-        }
-
-        private static void ReadTest(string name, string[] args, Action<string, MyHashAlgorithm> test)
+        private static void WriteTest(string name, string[] args, MyHashAlgorithm hash, Action<string, MyHashAlgorithm> test)
         {
             for (var i = 0; i < args.Length; ++i)
             {
-                var header = $"{name}: {args[i]}";
+                var header = args.Length > 1 ? $"{name}: {args[i]}" : name;
                 var ticks = new List<long>();
 
-                for (int n = 0; n < NTESTS; ++n)
+                for (int n = 0; n < WRITETESTS; ++n)
                 {
-                    using (MyHashAlgorithm hash = new MySimpleHash())
+                    var elapsed = MyCrono.Elapsed(() => test(args[i], hash));
+                    var hashResult = hash.FormatHash();
+
+                    if (DisplayWriteTestStep)
+                    {
+                        Console.Out.WriteLine("{0}: ELAPSED {1} HASH {2}", header, elapsed, hashResult);
+                    }
+
+                    ticks.Add(elapsed.Ticks);
+                }
+
+                ticks.Sort();
+
+                CalcStats(ticks, out long tsum, out long tavg, out long tstd);
+
+                var sel = ticks.Where(v => v > tavg - tstd && v < tavg + tstd);
+                var sum = new TimeSpan(sel.Sum());
+                var avg = new TimeSpan(Convert.ToInt64(sel.Average()));
+
+                Results.Add((header, sum, avg));
+
+                if (DisplayWriteTestTime)
+                {
+                    Console.Out.WriteLine("{0}: ELAPSED {1} AVERAGE {2}", header, sum, avg);
+                }
+            }
+        }
+
+        private static void WarmupReadTest(string name, string[] args, MyHashAlgorithm hash, Action<string, MyHashAlgorithm> test)
+        {
+            for (var i = 0; i < args.Length; ++i)
+            {
+                if (DisplayWarmupReadTest)
+                {
+                    var header = args.Length > 1 ? $"{name}: {args[i]}" : name;
+
+                    Console.Out.WriteLine("{0}: READ TEST WARM UP", header);
+                }
+
+                test(args[i], hash);
+            }
+        }
+
+        private static void ReadTest(string name, string[] args, MyHashAlgorithm hash, Action<string, MyHashAlgorithm> test)
+        {
+            for (var i = 0; i < args.Length; ++i)
+            {
+                var header = args.Length > 1 ? $"{name}: {args[i]}" : name;
+                var ticks = new List<long>();
+
+                for (int n = 0; n < READTESTS; ++n)
+                {
+                    if (ReadTestClearFileCache)
                     {
                         Win32.ClearFileCache(args[i]);
-                        var elapsed = MyCrono.Elapsed(() => test(args[i], hash));
-                        Console.Out.WriteLine("{0}: ELAPSED {1} HASH {2}", header, elapsed, hash.FormatHash());
-                        ticks.Add(elapsed.Ticks);
                     }
+
+                    if (ReadTestRunGarbageCollector)
+                    {
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    }
+
+                    var elapsed = MyCrono.Elapsed(() => test(args[i], hash));
+                    var hashResult = hash.FormatHash();
+                    var ok = true;
+
+                    if (FirstHashResult == null)
+                    {
+                        FirstHashResult = hashResult;
+                    }
+                    else if (FirstHashResult != hashResult)
+                    {
+                        ok = false;
+                    }
+
+                    if (ok)
+                    {
+                        if (DisplayReadTestStep)
+                        {
+                            Console.Out.WriteLine("{0}: ELAPSED {1} HASH {2}", header, elapsed, hashResult);
+                        }
+                    }
+                    else
+                    {
+                        Console.Out.WriteLine("{0}: ELAPSED {1} HASH {2} FIRST {3}", header, elapsed, hashResult, FirstHashResult);
+                    }
+
+                    ticks.Add(elapsed.Ticks);
                 }
 
-                var sum = new TimeSpan(Convert.ToInt64(ticks.Sum()));
-                var average = new TimeSpan(Convert.ToInt64(ticks.Average()));
+                ticks.Sort();
 
-                Console.Out.WriteLine("{0}: ELAPSED {1} AVERAGE {2}", header, sum, average);
+                CalcStats(ticks, out long tsum, out long tavg, out long tstd);
+
+                var sel = ticks.Where(v => v > tavg - tstd && v < tavg + tstd);
+                var sum = new TimeSpan(sel.Sum());
+                var avg = new TimeSpan(Convert.ToInt64(sel.Average()));
+
+                Results.Add((header, sum, avg));
+
+                if (DisplayReadTestTime)
+                {
+                    Console.Out.WriteLine("{0}: ELAPSED {1} AVERAGE {2}", header, sum, avg);
+                }
             }
         }
 
-        private static void ReadTest(string[] args)
+        private static void ReportResults()
         {
-            ReadTest1.Run((name, test) => ReadTest(name, args, test));
-            //ReadTest2.Run((name, test) => ReadTest(name, args, test));
-            //ReadTest3.Run((name, test) => ReadTest(name, args, test));
-            //ReadTest5.Run((name, test) => ReadTest(name, args, test));
-            //ReadTest6.Run((name, test) => ReadTest(name, args, test));
+            if (Results.Count > 0 && DisplaySortedResults)
+            {
+                Results.Sort((x, y) => -x.average.CompareTo(y.average));
+
+                Console.Out.WriteLine(Separator);
+
+                foreach (var (header, elapsed, average) in Results)
+                {
+                    Console.Out.WriteLine("{0}: ELAPSED {1} AVERAGE {2}", header, elapsed, average);
+                }
+            }
         }
 
-        void UsingGCHandles()
+        private static void Run<T>(string[] args, MyHashAlgorithm hash, TestFunc action) where T : TestBase, new()
         {
-            var dataArray = new byte[10 * 1024 * 1024];
-            var handle = System.Runtime.InteropServices.GCHandle.Alloc(dataArray, System.Runtime.InteropServices.GCHandleType.Pinned);
+            new T().Run((name, test) => action(name, args, hash, test));
+        }
 
-            // retrieve a raw pointer to pass to the native code:
-            var ptr = handle.AddrOfPinnedObject();
+        private static void RunTests(string[] args)
+        {
+            using (MyHashAlgorithm hash = GetMyHashAlgorithm())
+            {
+                var writeTests = new (bool, bool, TestFunc)[]
+                {
+                    (RunWarmupWriteTest, DisplayWarmupWriteTest, WarmupWriteTest),
+                    (RunWriteTest, DisplayWriteTest, WriteTest)
+                };
 
-            // later, possibly in some other method:
-            handle.Free();
+                foreach (var (run, display, test) in writeTests)
+                {
+                    if (run)
+                    {
+                        if (display)
+                        {
+                            Console.Out.WriteLine(Separator);
+                        }
+
+                        Run<WriteTest1>(args, hash, test);
+                    }
+                }
+
+                var readTests = new (bool, bool, TestFunc)[]
+                {
+                    (RunWarmupReadTest, DisplayWarmupReadTest, WarmupReadTest),
+                    (RunReadTest, DisplayReadTest, ReadTest)
+                };
+
+                foreach (var (run, display, test) in readTests)
+                {
+                    if (run)
+                    {
+                        if (display)
+                        {
+                            Console.Out.WriteLine(Separator);
+                        }
+
+                        Run<ReadTest1>(args, hash, test);
+                        Run<ReadTest2>(args, hash, test);
+                        Run<ReadTest3>(args, hash, test);
+                        Run<ReadTest4>(args, hash, test);
+                        Run<ReadTest5>(args, hash, test);
+                        Run<ReadTest6>(args, hash, test);
+                        //Run<ReadTest7>(args, hash, test);
+                    }
+                }
+            }
         }
 
         static void Main(string[] args)
         {
             try
             {
-                ReadTest(args);
+                RunTests(args);
+                ReportResults();
             }
             catch (Exception ex)
             {
