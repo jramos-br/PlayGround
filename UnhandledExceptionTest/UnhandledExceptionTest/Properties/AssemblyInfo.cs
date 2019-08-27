@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("UnhandledExceptionTest")]
-[assembly: AssemblyDescription("The UnhandledExceptionTest program")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("UnhandledExceptionTest")]
-[assembly: AssemblyCopyright("Copyright © 2019 Jorge Ramos (jramos at pobox dot com)")]
+[assembly: AssemblyCopyright("Copyright © 2019 Jorge Ramos (mailto jramos at pobox dot com)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

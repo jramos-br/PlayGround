@@ -7,7 +7,7 @@
 // You can change App.config to specify whether EventReporter logs fatal errors
 // in the Windows event log 
 //
-// Copyright (c) 2019 Jorge Ramos (jramos at pobox dot com)
+// Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //
 // This software is provided "as is", without any express or implied warranty.
 // Use it at your own risk. In no event shall the authors or copyright holders
@@ -65,10 +65,10 @@ namespace UnhandledExceptionTest
             // Disable the Windows Error Reporting dialog and crash report.
             NativeMethods.SetErrorMode(NativeMethods.GetErrorMode() | NativeMethods.SEM_NOGPFAULTERRORBOX);
 
-            // Define the unhandled exception handler.
+            // Set the unhandled exception handler.
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionEventHandler;
 
-            // Avoid the default exception handler report.
+            // Prevent the unhandled exception default report.
             AppDomain.CurrentDomain.UnhandledException += CloseStderr;
         }
 
