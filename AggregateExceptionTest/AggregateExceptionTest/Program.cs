@@ -4,11 +4,14 @@
 //
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //
-// This software is provided "as is", without any express or implied warranty.
-// Use it at your own risk. In no event shall the authors or copyright holders
-// be held liable for any damages arising from the use of this software. Use
-// and redistribution in source and binary forms, with or without modification,
-// are permitted. Altered source versions must be plainly marked as such.
+// This program is free software, distributed in the hope that it will be
+// useful, but without any express or implied warranty. Use it at your own
+// risk. In no event shall the authors or copyright holders be held liable
+// for any damages arising from the use of this software. Redistribution
+// and use in source and binary forms, with or without modification, are
+// permitted. Altered source versions must be plainly marked as such. If
+// you use, modify or redistribute this software, an acknowledgment would
+// be appreciated but is not required.
 
 using System;
 using System.Collections.Generic;
