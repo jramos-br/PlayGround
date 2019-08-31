@@ -9,21 +9,16 @@
 //
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //
-// This program is free software, distributed in the hope that it will be
-// useful, but without any warranty. Use it at your own risk. Redistribution
-// and use in source and binary forms, with or without modification, are
-// permitted. Altered source versions must be plainly marked as such. If
-// you use, copy, modify or redistribute this software, an acknowledgment
-// would be appreciated but is not required.
+// This is free software. Redistribution and use in source and binary forms,
+// with or without modification, for any purpose and with or without fee are
+// hereby permitted. Altered source versions must be plainly marked as such.
 //
-// THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// If you find this software useful, an acknowledgment would be appreciated
+// but is not required.
 //
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THIS
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THIS SOFTWARE.
+// THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OR CONDITION.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
+// FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
 
 using System;
 using System.Collections.Generic;
