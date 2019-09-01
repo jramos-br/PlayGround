@@ -1,4 +1,21 @@
-﻿using System;
+﻿// The Test3 class.
+//
+// This file is part of the AsyncTest1 program.
+//
+// Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
+//
+// This is free software. Redistribution and use in source and binary forms,
+// with or without modification, for any purpose and with or without fee are
+// hereby permitted. Altered source versions must be plainly marked as such.
+//
+// If you find this software useful, an acknowledgment would be appreciated
+// but is not required.
+//
+// THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OR CONDITION.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
+// FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,12 +36,12 @@ namespace AsyncTest1
 
         private async Task WriteCount()
         {
-            while (true)
+            for (int i = 0; i < 20; ++i)
             {
                 await Task.Delay(1000);
 
                 Console.SetCursorPosition(0, 4);
-                Console.Error.Write(string.Format(">{0}< {1}", Thread.CurrentThread.ManagedThreadId, ++Count2));
+                Console.Out.Write(string.Format(">{0}< {1}", Thread.CurrentThread.ManagedThreadId, ++Count2));
                 Console.SetCursorPosition(0, 5);
             }
         }
@@ -39,16 +56,16 @@ namespace AsyncTest1
             try
             {
                 Console.Clear();
-                Console.Write("Press any ky to stop");
+                Console.Out.Write("Press any key to stop");
                 Console.SetCursorPosition(0, 5);
 
                 var start = DateTime.MinValue;
                 var awaiter = WriteCount().GetAwaiter();
 
-                while (ReadKey().Key == 0)
+                while (ReadKey().Key == 0 && !awaiter.IsCompleted)
                 {
                     Console.SetCursorPosition(0, 3);
-                    Console.Error.Write(string.Format("[{0}] {1}", Thread.CurrentThread.ManagedThreadId, ++Count1));
+                    Console.Out.Write(string.Format("[{0}] {1}", Thread.CurrentThread.ManagedThreadId, ++Count1));
                     Console.SetCursorPosition(0, 5);
 
                     var now = DateTime.Now;
@@ -57,16 +74,16 @@ namespace AsyncTest1
                     {
                         start = now;
                         Console.SetCursorPosition(0, 2);
-                        Console.Error.Write(string.Format("{0}", now));
+                        Console.Out.Write(string.Format("{0}", now));
                         Console.SetCursorPosition(0, 5);
                     }
                 }
 
-                await Console.Error.WriteLineAsync("OK");
+                await Console.Out.WriteLineAsync("OK");
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
+                Console.Out.WriteLine(ex.Message);
             }
             finally
             {

@@ -1,10 +1,29 @@
-﻿using System;
+﻿// The AsyncPump class.
+//
+// This file is attached to the post "Await, SynchronizationContext, and Console
+// Apps" posted by Stephen Toub at the following URL:
+//
+// https://devblogs.microsoft.com/pfxteam/await-synchronizationcontext-and-console-apps/
+//
+// Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
+//
+// This is free software. Redistribution and use in source and binary forms,
+// with or without modification, for any purpose and with or without fee are
+// hereby permitted. Altered source versions must be plainly marked as such.
+//
+// If you find this software useful, an acknowledgment would be appreciated
+// but is not required.
+//
+// THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OR CONDITION.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
+// FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-// https://devblogs.microsoft.com/pfxteam/await-synchronizationcontext-and-console-apps/
 namespace Microsoft.Threading
 {
     /// <summary>Provides a pump that supports running asynchronous methods on the current thread.</summary>
@@ -27,7 +46,7 @@ namespace Microsoft.Threading
                 var t = func();
                 if (t == null) throw new InvalidOperationException("No task provided.");
                 t.ContinueWith(delegate { syncCtx.Complete(); }, TaskScheduler.Default);
-                
+
                 // Pump continuations and propagate any exceptions
                 syncCtx.RunOnCurrentThread();
                 t.GetAwaiter().GetResult();
@@ -39,7 +58,7 @@ namespace Microsoft.Threading
         private sealed class SingleThreadSynchronizationContext : SynchronizationContext
         {
             /// <summary>The queue of work items.</summary>
-            private readonly BlockingCollection<KeyValuePair<SendOrPostCallback, object>> m_queue = 
+            private readonly BlockingCollection<KeyValuePair<SendOrPostCallback, object>> m_queue =
                 new BlockingCollection<KeyValuePair<SendOrPostCallback, object>>();
             /// <summary>The processing thread.</summary>
             private readonly Thread m_thread = Thread.CurrentThread;
