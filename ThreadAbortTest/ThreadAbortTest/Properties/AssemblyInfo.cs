@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("ThreadAbortTest")]
-[assembly: AssemblyCopyright("Copyright © 2019 Jorge Ramos (mailto jramos at pobox dot com)")]
+[assembly: AssemblyCopyright("Copyright © 2019 Jorge Ramos")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
