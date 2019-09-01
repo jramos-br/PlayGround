@@ -1,6 +1,6 @@
 ﻿// The Main2 class.
 //
-// This file if part of the ThreadAbortTest program.
+// This file is part of the ThreadAbortTest program.
 //
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //
