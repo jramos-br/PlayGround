@@ -86,11 +86,16 @@ namespace AggregateExceptionTest
             }
             catch (Exception ex)
             {
+                WriteLine(new string('1', 80));
                 WriteException1(ex);
-                WriteLine(new string('*', 80));
+                WriteLine(new string('2', 80));
                 WriteException2(ex);
-                WriteLine(new string('*', 80));
+                WriteLine(new string('3', 80));
                 WriteException3(ex);
+                WriteLine(new string('4', 80));
+                WriteException4(nameof(Main), ex);
+                WriteLine(new string('5', 80));
+                WriteException5(nameof(Main), ex);
             }
         }
 
@@ -104,62 +109,120 @@ namespace AggregateExceptionTest
                 WriteLine(ex);
         }
 
-        static void WriteException2(Exception ex, int level = 0)
+        static void WriteException2(Exception ex, int indent = 0)
         {
             if (ex is AggregateException ae)
             {
                 foreach (var aex in ae.Flatten().InnerExceptions)
                 {
-                    WriteException2(aex, level);
+                    WriteException2(aex, indent);
                 }
             }
             else
             {
-                WriteLine(ex, level);
+                WriteLine(ex, indent);
 
                 if (DisplayStackTrace)
                 {
-                    WriteStackTrace(ex, level);
+                    WriteStackTrace(ex, indent);
                 }
 
                 if (ex.InnerException != null)
                 {
-                    WriteException2(ex.InnerException, level + 1);
+                    WriteException2(ex.InnerException, indent + 1);
                 }
             }
         }
 
-        static void WriteException3(Exception ex, int level = 0)
+        static void WriteException3(Exception ex, int indent = 0)
         {
-            WriteLine(ex, level);
+            WriteLine(ex, indent);
 
             if (DisplayStackTrace)
             {
-                WriteStackTrace(ex, level);
+                WriteStackTrace(ex, indent);
             }
 
             if (ex is AggregateException ae)
             {
                 for (int i = 0; i < ae.InnerExceptions.Count; ++i)
                 {
-                    WriteException3(ae.InnerExceptions[i], level + 1);
+                    WriteException3(ae.InnerExceptions[i], indent + 1);
                 }
             }
             else
             {
                 if (ex.InnerException != null)
                 {
-                    WriteException3(ex.InnerException, level + 1);
+                    WriteException3(ex.InnerException, indent + 1);
                 }
             }
         }
 
-        static void WriteStackTrace(Exception ex, int level = 0)
+        static void WriteException4(string message, Exception ex, int indent = 0)
+        {
+            if (ex is AggregateException ae)
+            {
+                foreach (var aex in ae.Flatten().InnerExceptions)
+                {
+                    WriteException4(message, aex, indent);
+                }
+            }
+            else
+            {
+                WriteLine(message, ex, indent);
+
+                if (DisplayStackTrace)
+                {
+                    WriteStackTrace(ex, indent);
+                }
+
+                if (ex.InnerException != null)
+                {
+                    WriteException4(message, ex.InnerException, indent + 1);
+                }
+            }
+        }
+
+        static void WriteException5(string message, Exception ex, int indent = 0)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                WriteLine(ex, indent);
+            }
+            else
+            {
+                WriteLine(message, ex, indent);
+                message = null;
+            }
+
+            if (DisplayStackTrace)
+            {
+                WriteStackTrace(ex, indent);
+            }
+
+            if (ex is AggregateException ae)
+            {
+                for (int i = 0; i < ae.InnerExceptions.Count; ++i)
+                {
+                    WriteException5(message, ae.InnerExceptions[i], indent + 1);
+                }
+            }
+            else
+            {
+                if (ex.InnerException != null)
+                {
+                    WriteException5(message, ex.InnerException, indent + 1);
+                }
+            }
+        }
+
+        static void WriteStackTrace(Exception ex, int indent = 0)
         {
             var sb = new StringBuilder();
             var st = new StackTrace(ex, true);
 
-            var header = new string(' ', level);
+            var header = new string(' ', indent);
 
             for (int i = 0; i < st.FrameCount; ++i)
             {
@@ -211,14 +274,19 @@ namespace AggregateExceptionTest
             }
         }
 
-        static void WriteLine(Exception ex, int level = 0)
+        static void WriteLine(string message, Exception ex, int indent = 0)
         {
-            WriteLine(ex.Message, level);
+            WriteLine(message + ": " + ex.Message, indent);
         }
 
-        static void WriteLine(string message, int level = 0)
+        static void WriteLine(Exception ex, int indent = 0)
         {
-            Console.Error.WriteLine(new string(' ', level) + message);
+            WriteLine(ex.Message, indent);
+        }
+
+        static void WriteLine(string message, int indent = 0)
+        {
+            Console.Error.WriteLine(new string(' ', indent) + message);
         }
     }
 }
