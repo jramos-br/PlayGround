@@ -1,3 +1,22 @@
+// This file is part of the Combinatorics program.
+//
+// Algorithms and portions of the source code used in this software are publicly
+// available on the Internet and at any major bookstore. Where applicable, links
+// are provided to online resources.
+//
+// Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
+//
+// This is free software. Redistribution and use in source and binary forms,
+// with or without modification, for any purpose and with or without fee are
+// hereby permitted. Altered source versions must be plainly marked as such.
+//
+// If you find this software useful, an acknowledgment would be appreciated
+// but is not required.
+//
+// THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OR CONDITION.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
+// FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,8 +62,8 @@ static void print_array(const unsigned int *ar, size_t len, FILE *fptr)
 static int combination(void)
 {
     unsigned int numbers[3] = { 1, 2, 3 };
-    const size_t k = sizeof(numbers) / sizeof(numbers[0]);
     unsigned int n = 4;
+    const unsigned int k = sizeof(numbers) / sizeof(numbers[0]);
 
     for (int i = 0, j = choose(n, k); i < j; ++i)
     {
