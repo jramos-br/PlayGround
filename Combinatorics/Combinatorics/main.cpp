@@ -1,11 +1,11 @@
 // The Combinatorics program.
 //
-// This program demonstrates several algorithms to deal with combinations and
-// permutations.
+// This program demonstrates several algorithms to deal with combinations
+// and permutations.
 //
-// Algorithms and portions of the source code used in this software are publicly
-// available on the Internet and at any major bookstore. Where applicable, links
-// are provided to online resources.
+// Algorithms and portions of the source code used in this software are
+// publicly available on the Internet and at any major bookstore. Where
+// applicable, links are provided to online resources.
 //
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //

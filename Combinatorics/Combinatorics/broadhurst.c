@@ -1,8 +1,8 @@
 // This file is part of the Combinatorics program.
 //
-// Algorithms and portions of the source code used in this software are publicly
-// available on the Internet and at any major bookstore. Where applicable, links
-// are provided to online resources.
+// Algorithms and portions of the source code used in this software are
+// publicly available on the Internet and at any major bookstore. Where
+// applicable, links are provided to online resources.
 //
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //
