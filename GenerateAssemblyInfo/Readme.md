@@ -6,7 +6,7 @@ normally be defined in `AssemblyInfo.cs`.
 [The AssemblyInfo file](#the-assemblyinfo-file)<br/>
 [The new csproj file format](#the-new-csproj-file-format)<br/>
 [Auto-generated assembly attributes](#auto-generated-assembly-attributes)<br/>
-[Assembly attributes from auto-generated and AssemblyInfo mixed](#assembly-attributes-from-auto-generated-and-assemblyinfo-mixed)<br/>
+[Assembly attributes mixed from two sources](#assembly-attributes-mixed-from-two-sources)<br/>
 [See also](#see-also)<br/>
 [License](#license)
 
@@ -25,7 +25,7 @@ These attributes can be modified two different ways:
 - Expand the Properties node in the Solution Explorer and open the file `AssemblyInfo.cs`.
   The attributes can be modified here for quicker editing instead of using the GUI editor.
 
-A typical `AssemblyInfo.cs` file looks like the following.
+A typical `AssemblyInfo.cs` file looks like the following:
 
 ```c#
 using System.Reflection;
@@ -54,7 +54,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5abdc492-59cb-4715-8ac4-0af957c7af01")]
+[assembly: Guid("7f941ba5-6732-41aa-80e1-505206c4e894")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -80,7 +80,7 @@ version as project properties defined in the csproj file. Assembly attributes th
 typically present in an `AssemblyInfo.cs` file are now automatically generated from these
 properties.
 
-A typical csproj file for a .NET Core 3.0 console application looks like the following.
+A typical csproj file for a .NET Core 3.0 console application looks like the following:
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -135,7 +135,7 @@ AssemblyTitle and Version defined.
 ```
 
 During the build process of the above csproj file, MSBuild automatically generates the
-file `GenerateAssemblyInfo.AssemblyInfo.cs`, containing AssemblyTitle and Version
+file `GenerateAssemblyInfo.AssemblyInfo.cs`, containing the AssemblyTitle and Version
 attributes defined with the values from the csproj properties.
 
 ```c#
@@ -151,9 +151,10 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 ```
 
-Other assembly attributes are automatically generated. To disable that, appropriate
-properties must be defined in the csproj file. In the following example, the generation
-of Company and Product attributes is disabled.
+Besides AssemblyTitle and Version, defined in the csproj, other assembly attributes are
+automatically generated. To disable that, appropriate properties must be defined in the
+csproj file. In the following example, the generation of Company and Product attributes
+is disabled.
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -168,7 +169,7 @@ of Company and Product attributes is disabled.
 </Project>
 ```
 
-The `GenerateAssemblyInfo.AssemblyInfo.cs` file looks like the following.
+The `GenerateAssemblyInfo.AssemblyInfo.cs` file looks like the following:
 
 ```c#
 using System;
@@ -181,9 +182,9 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 ```
 
-You can control most of the assembly attributes generation in csproj. If you'd rather keep
-these in `AssemblyInfo.cs` file, you can turn off the automatic generation of assembly
-attributes.
+You can control most of the assembly attributes generation with properties in csproj.
+If you'd rather keep the attributes definition in `AssemblyInfo.cs` file, you can turn
+off the automatic generation of assembly attributes.
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -195,9 +196,12 @@ attributes.
 </Project>
 ```
 
-## Assembly attributes from auto-generated and AssemblyInfo mixed
+With the above configuration the `GenerateAssemblyInfo.AssemblyInfo.cs` will not be
+generated.
 
-Some assembly attributes cannot be defined from properties in csproj. So `AssemblyInfo.cs`
+## Assembly attributes mixed from two sources
+
+Some assembly attributes cannot be defined with properties in csproj. So `AssemblyInfo.cs`
 and auto-generated attributes can unite for completeness.
 
 The csproj file below defines most of the available properties to auto-generate assembly
@@ -240,6 +244,10 @@ using System.Runtime.InteropServices;
 [assembly: Guid("7f941ba5-6732-41aa-80e1-505206c4e894")]
 ```
 
+The above example shows how a Visual Studio project can define some assembly attributes
+in the `AssemblyInfo.cs` file and auto-generate others from properties in the csproj file
+into the `GenerateAssemblyInfo.AssemblyInfo.cs` file.
+
 ## See also
 
 - [Additions to the csproj format for .NET Core](https://docs.microsoft.com/en-us/dotnet/core/tools/csproj)
@@ -247,8 +255,6 @@ using System.Runtime.InteropServices;
 - [Microsoft.NET.GenerateAssemblyInfo.targets](https://github.com/dotnet/sdk/blob/master/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets)
 
 ## License
-
-Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 
 This is free software. Redistribution and use in source and binary forms,
 with or without modification, for any purpose and with or without fee are
