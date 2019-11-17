@@ -24,9 +24,9 @@ using System.Threading.Tasks;
 
 namespace ThreadAbortTest
 {
-    class Test2
+    class Test2 : TestBase
     {
-        private void Run(int test)
+        public override void Run(int test)
         {
             Util.WriteMessage(Util.GetMethodName(this) + ": begin test = " + test.ToString());
 

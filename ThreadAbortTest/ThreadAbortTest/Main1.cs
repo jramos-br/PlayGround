@@ -24,8 +24,13 @@ using System.Threading.Tasks;
 
 namespace ThreadAbortTest
 {
-    class Main1
+    class Main1 : MainBase
     {
+        public Main1()
+        {
+            _run = Run1;
+        }
+
         private static volatile Thread _mainThread;
 
         private static readonly bool _exceptionInInitialize = false;
@@ -123,7 +128,7 @@ namespace ThreadAbortTest
             Util.WriteMessage(Util.GetMethodName<Main1>() + ": end");
         }
 
-        public static void Run(Action action)
+        private static void Run1(Action action)
         {
             Util.WriteMessage(Util.GetMethodName<Main1>() + ": begin");
 

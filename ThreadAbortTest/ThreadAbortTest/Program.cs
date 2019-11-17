@@ -33,10 +33,32 @@ namespace ThreadAbortTest
             {
                 try
                 {
-                    Main1.Run(() => Test2.RunTest(3));
+                    int main = args.Length > 0 ? Convert.ToInt32(args[0]) : 1;
+                    int test = args.Length > 1 ? Convert.ToInt32(args[1]) : 1;
+                    int func = args.Length > 2 ? Convert.ToInt32(args[2]) : 1;
+
+                    MainBase mainFunc = null;
+                    TestBase testFunc = null;
+
+                    switch (main)
+                    {
+                        case 1: mainFunc = new Main1(); break;
+                        case 2: mainFunc = new Main2(); break;
+                    }
+
+                    switch (test)
+                    {
+                        case 1: testFunc = new Test1(); break;
+                        case 2: testFunc = new Test2(); break;
+                    }
+
+                    mainFunc.Run(() => testFunc.Run(func));
                 }
                 catch (ThreadAbortException)
                 {
+                    // ThreadAbortException is a special exception that can be
+                    // caught, but it will automatically be raised again at the
+                    // end of the catch block, unless Thread.ResetAbort is called.
                 }
                 catch (Exception ex)
                 {

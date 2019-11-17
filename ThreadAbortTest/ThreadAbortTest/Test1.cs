@@ -24,11 +24,11 @@ using System.Threading.Tasks;
 
 namespace ThreadAbortTest
 {
-    class Test1
+    class Test1 : TestBase
     {
-        public static volatile int _flag = 0;
+        public volatile int _flag = 0;
 
-        private void Run(int test)
+        public override void Run(int test)
         {
             Util.WriteMessage(Util.GetMethodName(this) + ": begin test = " + test.ToString());
 

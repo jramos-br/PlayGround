@@ -24,9 +24,14 @@ using System.Threading.Tasks;
 
 namespace ThreadAbortTest
 {
-    class Main2
+    class Main2 : MainBase
     {
-        private static Thread _mainThread;
+        public Main2()
+        {
+            _run = Run1;
+        }
+
+        private static volatile Thread _mainThread;
 
         private static void Initialize()
         {
@@ -98,7 +103,7 @@ namespace ThreadAbortTest
             }
         }
 
-        public static void Run(Action action)
+        private static void Run1(Action action)
         {
             try
             {
