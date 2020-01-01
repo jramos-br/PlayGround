@@ -29,7 +29,7 @@ namespace AsyncTest1
         {
             try
             {
-                Test6.Run(args);
+                Test7.Run(args);
             }
             catch (Exception ex)
             {
