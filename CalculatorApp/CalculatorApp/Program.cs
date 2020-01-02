@@ -27,11 +27,11 @@ using System.Threading.Tasks;
 
 namespace CalculatorApp
 {
-    class Program
+    public class Program
     {
         static readonly string[] operations = new string[] { "+", "-", "*", "/" };
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             try
             {

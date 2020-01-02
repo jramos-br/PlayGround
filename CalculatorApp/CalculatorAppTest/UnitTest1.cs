@@ -24,6 +24,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using CalculatorApp;
 
 namespace CalculatorAppTest
 {
@@ -93,23 +94,113 @@ namespace CalculatorAppTest
         }
 
         /// <summary>
-        /// Test method.
+        /// Initial value must be zero.
         /// </summary>
         [TestMethod]
-        public void TestMethod1()
+        public void InitialValueMustBeZero()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest1), nameof(TestMethod1)));
+            Calculator c = new Calculator();
+            double value = c.Value;
+            Assert.AreEqual(0, value);
         }
 
         /// <summary>
-        /// Test method.
+        /// A simple add.
         /// </summary>
         [TestMethod]
-        public void TestMethod2()
+        public void SimpleAdd()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest1), nameof(TestMethod2)));
+            Calculator c = new Calculator();
+            double value = c.Add(2).Add(3).Value;
+            Assert.AreEqual(5, value);
+        }
+
+        /// <summary>
+        /// A simple subtraction.
+        /// </summary>
+        [TestMethod]
+        public void SimpleSubtract()
+        {
+            Calculator c = new Calculator();
+            double value = c.Subtract(2).Subtract(3).Value;
+            Assert.AreEqual(-5, value);
+        }
+
+        /// <summary>
+        /// A simple multiplication.
+        /// </summary>
+        [TestMethod]
+        public void SimpleMultipy()
+        {
+            Calculator c = new Calculator();
+            double value = c.Add(2).Multiply(3).Value;
+            Assert.AreEqual(6, value);
+        }
+
+        /// <summary>
+        /// A simple division.
+        /// </summary>
+        [TestMethod]
+        public void SimpleDivide()
+        {
+            Calculator c = new Calculator();
+            double value = c.Add(5).Divide(2).Value;
+            Assert.AreEqual(2.5, value);
+        }
+
+        /// <summary>
+        /// A four operations simple test.
+        /// </summary>
+        [TestMethod]
+        public void FourOperations()
+        {
+            Calculator c = new Calculator();
+            double value = c.Add(16).Subtract(8).Multiply(4).Divide(2).Value;
+            Assert.AreEqual(16, value);
+        }
+
+        /// <summary>
+        /// Divide zero by zero.
+        /// </summary>
+        [TestMethod]
+        public void DivideZeroByZero()
+        {
+            Calculator c = new Calculator();
+            double value = c.Divide(0).Value;
+            Assert.AreEqual(double.NaN, value);
+        }
+
+        /// <summary>
+        /// Divide a negative number by zero.
+        /// </summary>
+        [TestMethod]
+        public void DivideNegativeByZero()
+        {
+            Calculator c = new Calculator();
+            double value = c.Subtract(42).Divide(0).Value;
+            Assert.AreEqual(double.NegativeInfinity, value);
+        }
+
+        /// <summary>
+        /// PI times 2 divide by 2.
+        /// </summary>
+        [TestMethod]
+        public void PiTimesTwoDivideByTwo()
+        {
+            Calculator c = new Calculator();
+            double value = c.Add(Math.PI).Multiply(2).Divide(2).Value;
+            Assert.AreEqual(Math.PI, value);
+        }
+
+        /// <summary>
+        /// 0.5 times 4.
+        /// </summary>
+        [TestMethod]
+        public void ZeroPointFiveTimesFour()
+        {
+            Calculator c = new Calculator();
+            double value = c.Add(0.5).Add(0.5).Add(0.5).Add(0.5).Value;
+            Assert.AreEqual(2, value);
         }
     }
 }

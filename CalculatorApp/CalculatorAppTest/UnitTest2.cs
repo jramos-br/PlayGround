@@ -24,6 +24,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using CalculatorApp;
 
 namespace CalculatorAppTest
 {
@@ -93,23 +94,35 @@ namespace CalculatorAppTest
         }
 
         /// <summary>
-        /// Test method.
+        /// App 1 + 1.
         /// </summary>
         [TestMethod]
-        public void TestMethod3()
+        public void App1Plus1()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest2), nameof(TestMethod3)));
+            using (var redirector = new ConsoleRedirector())
+            {
+                Program.Main(new string[] { "1", "+", "1" });
+                string line = redirector.ReadToEnd();
+                Assert.IsTrue(line.EndsWith(Environment.NewLine));
+                line = line.Substring(0, line.Length - Environment.NewLine.Length);
+                Assert.AreEqual("1 + 1 = 2", line);
+            }
         }
 
         /// <summary>
-        /// Test method.
+        /// App 42 + (error).
         /// </summary>
         [TestMethod]
-        public void TestMethod4()
+        public void App42Plus()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest2), nameof(TestMethod4)));
+            using (var redirector = new ConsoleRedirector())
+            {
+                Program.Main(new string[] { "42", "+" });
+                string line = redirector.ReadToEnd();
+                Assert.IsTrue(line.EndsWith(Environment.NewLine));
+                line = line.Substring(0, line.Length - Environment.NewLine.Length);
+                Assert.AreEqual("42 + " + new FormatException().Message, line);
+            }
         }
     }
 }
