@@ -20,6 +20,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MyTestAdapterTest
 {
+    /// <summary>
+    /// A test class.
+    /// </summary>
     [TestClass]
     public class UnitTest1
     {
