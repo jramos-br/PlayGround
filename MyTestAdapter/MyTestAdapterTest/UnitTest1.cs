@@ -13,10 +13,13 @@
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
 // FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MyTestAdapterTest
 {
@@ -95,7 +98,7 @@ namespace MyTestAdapterTest
         [DataTestMethod]
         [DataRow(1, 1, 2)]
         [DataRow(2, 2, 4)]
-        [DataRow(3, 3, 7)]
+        [DataRow(3, 3, 7)] // ERROR
         public void TestMethod1b(int a, int b, int expected)
         {
             Trace.WriteLine(string.Format("{0}.{1} a={2} b={3} expected={4}", nameof(UnitTest1), TestContext.TestName, a, b, expected));

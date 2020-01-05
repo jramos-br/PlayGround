@@ -13,9 +13,13 @@
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
 // FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
 
-using System;
-using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MyTestAdapterTest
 {
@@ -80,12 +84,13 @@ namespace MyTestAdapterTest
         }
 
         /// <summary>
-        /// A simple test method.
+        /// A simple async test method.
         /// </summary>
         [TestMethod]
-        public void TestMethod2a()
+        public async Task TestMethod2a()
         {
             Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest2), TestContext.TestName));
+            await Task.Delay(5000);
         }
 
         /// <summary>
