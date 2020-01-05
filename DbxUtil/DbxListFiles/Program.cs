@@ -557,7 +557,7 @@ namespace DbxListFiles
                     var size = ParseNumberAsLong(line.Substring(c + 1, d - (c + 1)));
                     var relativePath = line.Substring(d + 2); // Removes leading '/'
 
-                    //if (!relativePath.StartsWith("colortel/administração/Faturamento", StringComparison.OrdinalIgnoreCase))
+                    //if (!relativePath.StartsWith("prill/projetos/Azul Seguros", StringComparison.OrdinalIgnoreCase))
                     //    continue;
 
                     var files = new File[]
@@ -574,7 +574,7 @@ namespace DbxListFiles
 
                     await Task.WhenAll(testFileInfoTasks);
 
-                    if (testType == TestType.TestContent)
+                    if (testType == TestType.TestContent || (files[USER].Exists && files[OTHER].Exists))
                     {
                         var testFileContentTasks = new Task[]
                         {
@@ -590,8 +590,8 @@ namespace DbxListFiles
                         {
                             var testFileContentTasks = new Task[]
                             {
-                            files[0].TestContent(),
-                            files[1].TestContent()
+                                files[0].TestContent(),
+                                files[1].TestContent()
                             };
 
                             await Task.WhenAll(testFileContentTasks);
