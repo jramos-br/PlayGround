@@ -1,6 +1,4 @@
-﻿// The CalculatorApp program.
-//
-// A simple command-line calculator.
+﻿// A test project for the CalculatorApp program that uses MSTest as the test framework.
 //
 // This code sample demonstrates unit testing using MSTest.
 //
@@ -19,17 +17,19 @@
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
 // FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
 
+using CalculatorApp;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CalculatorApp;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CalculatorAppTest
 {
     /// <summary>
-    /// Test class.
+    /// A test class.
     /// </summary>
     [TestClass]
     public class UnitTest1
@@ -39,8 +39,7 @@ namespace CalculatorAppTest
         /// </summary>
         public UnitTest1()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest1), nameof(UnitTest1)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), nameof(UnitTest1)));
         }
 
         /// <summary>
@@ -56,8 +55,7 @@ namespace CalculatorAppTest
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest1), nameof(ClassInitialize)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), nameof(ClassInitialize)));
         }
 
         /// <summary>
@@ -67,8 +65,7 @@ namespace CalculatorAppTest
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest1), nameof(ClassCleanup)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), nameof(ClassCleanup)));
         }
 
         /// <summary>
@@ -78,8 +75,7 @@ namespace CalculatorAppTest
         [TestInitialize]
         public void TestInitialize()
         {
-            Trace.WriteLine(string.Format("{0}.{1}.{2}",
-                nameof(UnitTest1), nameof(TestInitialize), TestContext.TestName));
+            Trace.WriteLine(string.Format("{0}.{1}.{2}", nameof(UnitTest1), nameof(TestInitialize), TestContext.TestName));
         }
 
         /// <summary>
@@ -89,8 +85,7 @@ namespace CalculatorAppTest
         [TestCleanup]
         public void TestCleanup()
         {
-            Trace.WriteLine(string.Format("{0}.{1}.{2}",
-                nameof(UnitTest1), nameof(TestCleanup), TestContext.TestName));
+            Trace.WriteLine(string.Format("{0}.{1}.{2}", nameof(UnitTest1), nameof(TestCleanup), TestContext.TestName));
         }
 
         /// <summary>
@@ -99,6 +94,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void InitialValueMustBeZero()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
             double value = c.Value;
             Assert.AreEqual(0, value);
@@ -107,34 +103,46 @@ namespace CalculatorAppTest
         /// <summary>
         /// A simple add.
         /// </summary>
-        [TestMethod]
-        public void SimpleAdd()
+        [DataTestMethod]
+        [DataRow(1, 2, 3)]
+        [DataRow(3, 4, 7)]
+        [DataRow(5, 6, 11)]
+        public void SimpleAdd(double a, double b, double expected)
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
-            double value = c.Add(2).Add(3).Value;
-            Assert.AreEqual(5, value);
+            double value = c.Add(a).Add(b).Value;
+            Assert.AreEqual(expected, value);
         }
 
         /// <summary>
         /// A simple subtraction.
         /// </summary>
-        [TestMethod]
-        public void SimpleSubtract()
+        [DataTestMethod]
+        [DataRow(1, 2, -3)]
+        [DataRow(3, 4, -7)]
+        [DataRow(5, 6, -11)]
+        public void SimpleSubtract(double a, double b, double expected)
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
-            double value = c.Subtract(2).Subtract(3).Value;
-            Assert.AreEqual(-5, value);
+            double value = c.Subtract(a).Subtract(b).Value;
+            Assert.AreEqual(expected, value);
         }
 
         /// <summary>
         /// A simple multiplication.
         /// </summary>
-        [TestMethod]
-        public void SimpleMultipy()
+        [DataTestMethod]
+        [DataRow(1, 2, 2)]
+        [DataRow(3, 4, 12)]
+        [DataRow(5, 6, 30)]
+        public void SimpleMultipy(double a, double b, double expected)
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
-            double value = c.Add(2).Multiply(3).Value;
-            Assert.AreEqual(6, value);
+            double value = c.Add(a).Multiply(b).Value;
+            Assert.AreEqual(expected, value);
         }
 
         /// <summary>
@@ -143,6 +151,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void SimpleDivide()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
             double value = c.Add(5).Divide(2).Value;
             Assert.AreEqual(2.5, value);
@@ -154,6 +163,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void FourOperations()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
             double value = c.Add(16).Subtract(8).Multiply(4).Divide(2).Value;
             Assert.AreEqual(16, value);
@@ -165,6 +175,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void DivideZeroByZero()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
             double value = c.Divide(0).Value;
             Assert.AreEqual(double.NaN, value);
@@ -176,6 +187,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void DivideNegativeByZero()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
             double value = c.Subtract(42).Divide(0).Value;
             Assert.AreEqual(double.NegativeInfinity, value);
@@ -187,6 +199,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void PiTimesTwoDivideByTwo()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
             double value = c.Add(Math.PI).Multiply(2).Divide(2).Value;
             Assert.AreEqual(Math.PI, value);
@@ -198,6 +211,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void ZeroPointFiveTimesFour()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest1), TestContext.TestName));
             Calculator c = new Calculator();
             double value = c.Add(0.5).Add(0.5).Add(0.5).Add(0.5).Value;
             Assert.AreEqual(2, value);

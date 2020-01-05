@@ -1,6 +1,4 @@
-﻿// The CalculatorApp program.
-//
-// A simple command-line calculator.
+﻿// A test project for the CalculatorApp program that uses MSTest as the test framework.
 //
 // This code sample demonstrates unit testing using MSTest.
 //
@@ -19,17 +17,19 @@
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
 // FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
 
+using CalculatorApp;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CalculatorApp;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CalculatorAppTest
 {
     /// <summary>
-    /// Test class.
+    /// A test class.
     /// </summary>
     [TestClass]
     public class UnitTest2
@@ -39,8 +39,7 @@ namespace CalculatorAppTest
         /// </summary>
         public UnitTest2()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest2), nameof(UnitTest2)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest2), nameof(UnitTest2)));
         }
 
         /// <summary>
@@ -56,8 +55,7 @@ namespace CalculatorAppTest
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest2), nameof(ClassInitialize)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest2), nameof(ClassInitialize)));
         }
 
         /// <summary>
@@ -67,8 +65,7 @@ namespace CalculatorAppTest
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTest2), nameof(ClassCleanup)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest2), nameof(ClassCleanup)));
         }
 
         /// <summary>
@@ -78,8 +75,7 @@ namespace CalculatorAppTest
         [TestInitialize]
         public void TestInitialize()
         {
-            Trace.WriteLine(string.Format("{0}.{1}.{2}",
-                nameof(UnitTest2), nameof(TestInitialize), TestContext.TestName));
+            Trace.WriteLine(string.Format("{0}.{1}.{2}", nameof(UnitTest2), nameof(TestInitialize), TestContext.TestName));
         }
 
         /// <summary>
@@ -89,8 +85,7 @@ namespace CalculatorAppTest
         [TestCleanup]
         public void TestCleanup()
         {
-            Trace.WriteLine(string.Format("{0}.{1}.{2}",
-                nameof(UnitTest2), nameof(TestCleanup), TestContext.TestName));
+            Trace.WriteLine(string.Format("{0}.{1}.{2}", nameof(UnitTest2), nameof(TestCleanup), TestContext.TestName));
         }
 
         /// <summary>
@@ -99,6 +94,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void App1Plus1()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest2), TestContext.TestName));
             using (var redirector = new ConsoleRedirector())
             {
                 Program.Main(new string[] { "1", "+", "1" });
@@ -115,6 +111,7 @@ namespace CalculatorAppTest
         [TestMethod]
         public void App42Plus()
         {
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTest2), TestContext.TestName));
             using (var redirector = new ConsoleRedirector())
             {
                 Program.Main(new string[] { "42", "+" });

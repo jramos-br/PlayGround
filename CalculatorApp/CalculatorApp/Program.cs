@@ -2,10 +2,6 @@
 //
 // A simple command-line calculator.
 //
-// This code sample demonstrates unit testing using MSTest.
-//
-// https://docs.microsoft.com/en-us/visualstudio/test/unit-test-your-code
-//
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //
 // This is free software. Redistribution and use in source and binary forms,

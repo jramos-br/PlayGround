@@ -1,6 +1,6 @@
-﻿// The Calculator class.
+﻿// The CalculatorApp program.
 //
-// A simple calculator.
+// A simple command-line calculator.
 //
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //

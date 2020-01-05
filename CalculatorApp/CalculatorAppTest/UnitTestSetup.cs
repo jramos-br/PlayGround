@@ -1,6 +1,4 @@
-﻿// The CalculatorApp program.
-//
-// A simple command-line calculator.
+﻿// A test project for the CalculatorApp program that uses MSTest as the test framework.
 //
 // This code sample demonstrates unit testing using MSTest.
 //
@@ -19,19 +17,21 @@
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
 // FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CalculatorAppTest
 {
     /// <summary>
-    /// The test methods at the assembly level.
+    /// The assembly-level initialize and cleanup methods.
     /// </summary>
     [TestClass]
-    public class UnitTestInternal
+    public class UnitTestSetup
     {
         /// <summary>
         /// Contains code to be used before all tests in the assembly have run and to
@@ -44,8 +44,7 @@ namespace CalculatorAppTest
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext context)
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTestInternal), nameof(AssemblyInitialize)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTestSetup), nameof(AssemblyInitialize)));
         }
 
         /// <summary>
@@ -59,8 +58,7 @@ namespace CalculatorAppTest
         [AssemblyCleanup]
         public static void AssemblyCleanup()
         {
-            Trace.WriteLine(string.Format("{0}.{1}",
-                nameof(UnitTestInternal), nameof(AssemblyCleanup)));
+            Trace.WriteLine(string.Format("{0}.{1}", nameof(UnitTestSetup), nameof(AssemblyCleanup)));
         }
     }
 }

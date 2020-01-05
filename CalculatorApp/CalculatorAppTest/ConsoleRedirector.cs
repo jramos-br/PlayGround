@@ -1,10 +1,6 @@
-﻿// The CalculatorApp program.
-//
-// A simple command-line calculator.
+﻿// A test project for the CalculatorApp program that uses MSTest as the test framework.
 //
 // This code sample demonstrates unit testing using MSTest.
-//
-// https://docs.microsoft.com/en-us/visualstudio/test/unit-test-your-code
 //
 // Copyright (c) 2019 Jorge Ramos (mailto jramos at pobox dot com)
 //
@@ -31,13 +27,39 @@ namespace CalculatorAppTest
     /// <summary>
     /// Capture output that would otherwise go to the console.
     /// </summary>
-    sealed class ConsoleRedirector : IDisposable
+    /// <example>
+    /// <code>
+    /// using (var redirector = new ConsoleRedirector())
+    /// {
+    ///     Console.Out.WriteLine("test string");
+    ///     Console.Out.WriteLine("another test string");
+    ///     // Get console output captured until now.
+    ///     string line = redirector.ReadToEnd();
+    /// }
+    /// </code>
+    /// </example>
+    public sealed class ConsoleRedirector : IDisposable
     {
+        /// <summary>
+        /// Scope of redirection.
+        /// </summary>
         public enum Scope
         {
+            /// <summary>
+            /// No redirection.
+            /// </summary>
             None,
+            /// <summary>
+            /// Redirects Console.Out.
+            /// </summary>
             Output,
+            /// <summary>
+            /// Redirects Console.Error.
+            /// </summary>
             Error,
+            /// <summary>
+            /// Redirects both Console.Out and Console.Error.
+            /// </summary>
             All
         }
 
@@ -47,6 +69,10 @@ namespace CalculatorAppTest
         private StringWriter _writer;
         private bool _disposed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConsoleRedirector"/> class.
+        /// </summary>
+        /// <param name="scope">Scope of redirection.</param>
         public ConsoleRedirector(Scope scope = Scope.All)
         {
             _scope = scope;
@@ -75,13 +101,10 @@ namespace CalculatorAppTest
             }
         }
 
-        public void Flush()
-        {
-            if (_disposed) throw new ObjectDisposedException(nameof(ConsoleRedirector));
-
-            _writer.Flush();
-        }
-
+        /// <summary>
+        /// Reads all characters from the buffer with captured data.
+        /// </summary>
+        /// <returns>The data captured up to call time.</returns>
         public string ReadToEnd()
         {
             if (_disposed) throw new ObjectDisposedException(nameof(ConsoleRedirector));
@@ -89,6 +112,12 @@ namespace CalculatorAppTest
             return _writer.ToString();
         }
 
+        /// <summary>
+        /// Stops redirection.
+        /// </summary>
+        /// <remarks>
+        /// After disposing, you cannot make further calls to this instance.
+        /// </remarks>
         public void Dispose()
         {
             if (!_disposed)
@@ -117,7 +146,6 @@ namespace CalculatorAppTest
 
                 _writer.Dispose();
                 _writer = null;
-
                 _disposed = true;
             }
         }
