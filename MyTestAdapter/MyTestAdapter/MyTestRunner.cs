@@ -29,11 +29,13 @@ namespace MyTestAdapter
     /// </summary>
     /// <remarks>
     /// This is a simple Runner different from MSTest Runner in the following ways:
-    /// - You have to give the assembly to be tested.
-    /// - All tests are run.
-    /// - Test output is not captured.
-    /// - TestCleanup, ClassCleanup and AssemblyCleanup are always called.
-    /// - ClassCleanup is called after the tests of each class.
+    /// <list type="bullet">
+    /// <item><description>You have to give the assembly to be tested.</description></item>
+    /// <item><description>All tests are run.</description></item>
+    /// <item><description>Test output is not captured.</description></item>
+    /// <item><description>TestCleanup, ClassCleanup and AssemblyCleanup are always called.</description></item>
+    /// <item><description>ClassCleanup is called after the tests of each class.</description></item>
+    /// </list>
     /// </remarks>
     public class MyTestRunner
     {
