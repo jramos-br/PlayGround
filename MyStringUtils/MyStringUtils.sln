@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.960
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStringUtils", "MyStringUtils\MyStringUtils.csproj", "{6AC98ED5-C595-4DD9-A9D8-23397CF077CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyStringUtilsTest", "MyStringUtilsTest\MyStringUtilsTest.csproj", "{FAAD0E4B-CFDA-413A-AE98-F3AF435F4608}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6AC98ED5-C595-4DD9-A9D8-23397CF077CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AC98ED5-C595-4DD9-A9D8-23397CF077CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AC98ED5-C595-4DD9-A9D8-23397CF077CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AC98ED5-C595-4DD9-A9D8-23397CF077CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAAD0E4B-CFDA-413A-AE98-F3AF435F4608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAAD0E4B-CFDA-413A-AE98-F3AF435F4608}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAAD0E4B-CFDA-413A-AE98-F3AF435F4608}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAAD0E4B-CFDA-413A-AE98-F3AF435F4608}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {48C571E0-9AB1-4714-B923-6145B865CDBB}
+	EndGlobalSection
+EndGlobal

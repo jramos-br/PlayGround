@@ -2,6 +2,7 @@
 using Dropbox.Api.Files;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,35 +14,212 @@ namespace DbxListFiles
 {
     class Program
     {
-        private const int ReadBufferSize = 128 * 1024;
+        private const int ReadBufferSize = 256 * 1024;
         private bool Verbose = false;
 
-        [Flags]
-        private enum TestFileStatus
+        private const int USER = 0;
+        private const int OTHER = 1;
+        private const int BOTH = 2;
+
+        private enum TestType
         {
-            Success = 0,
-            FileNotFound = 0x01,
-            HashDiff = 0x02,
-            DateTimeDiff = 0x04,
-            SizeDiff = 0x08,
-            FileNotFoundOther = 0x10,
-            HashDiffOther = 0x20,
-            DateTimeDiffOther = 0x40,
-            SizeDiffOther = 0x80,
-            HashDiffBoth = 0x200,
-            DateTimeDiffBoth = 0x400,
-            SizeDiffBoth = 0x800,
-            Exception = 0x8000
+            TestContent,
+            TestInfo,
+            SetDate
         };
 
-        private class TestFileResult
+        private class File
         {
-            public TestFileStatus Status = TestFileStatus.Success;
-            public string FileHash = string.Empty;
-            public string ExceptionMessage = string.Empty;
-            public DateTime LastWriteTime = DateTime.MinValue;
-            public long Size = 0;
-        };
+            public readonly string Type;
+            public readonly string RootPath;
+            public readonly string RelativePath;
+            public readonly DateTime ServerLastWriteTime;
+            public readonly long ServerSize;
+            public readonly string ServerContentHash;
+
+            private string _filePath;
+            private FileInfo _fi;
+
+            public bool HasFileInfo => _fi != null;
+
+            public bool HasInfoTest { get; private set; }
+            public bool HasContentTest { get; private set; }
+
+            public File(string type, string rootPath, string relativePath, DateTime serverLastWriteTime, long serverSize, string serverContentHash)
+            {
+                Type = type;
+                RootPath = rootPath;
+                RelativePath = relativePath;
+                ServerLastWriteTime = serverLastWriteTime;
+                ServerSize = serverSize;
+                ServerContentHash = serverContentHash;
+
+                if (RootPath != null)
+                {
+                    _filePath = Path.Combine(RootPath, RelativePath);
+                    _fi = new FileInfo(_filePath);
+                }
+            }
+
+            public string FullName => HasFileInfo ? _fi.FullName : null;
+
+            public bool Exists
+            {
+                get
+                {
+                    if (HasFileInfo)
+                    {
+                        if (_fi.Exists)
+                        {
+                            HasFileNotFound = false;
+                            return true;
+                        }
+
+                        HasFileNotFound = true;
+                    }
+
+                    return false;
+                }
+            }
+
+            public Task TestInfo()
+            {
+                if (!HasInfoTest && Exists)
+                {
+                    try
+                    {
+                        HasDateTimeDiff = LastWriteTime != ServerLastWriteTime;
+                        HasSizeDiff = Size != ServerSize;
+                    }
+                    catch (Exception ex)
+                    {
+                        AddExceptionMessage(ex);
+                    }
+
+                    HasInfoTest = true;
+                }
+
+                return Task.CompletedTask;
+            }
+
+            public async Task TestContent()
+            {
+                if (!HasContentTest && Exists)
+                {
+                    try
+                    {
+                        var fileContentHash = await GetContentHash();
+                        HasHashDiff = !string.Equals(fileContentHash, ServerContentHash, StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch (Exception ex)
+                    {
+                        AddExceptionMessage(ex);
+                    }
+
+                    HasContentTest = true;
+                }
+            }
+
+            private DateTime _lastWriteTime = DateTime.MinValue;
+
+            public DateTime LastWriteTime
+            {
+                get
+                {
+                    if (_lastWriteTime == DateTime.MinValue && Exists)
+                    {
+                        var lastWriteTimeUtc = _fi.LastWriteTimeUtc;
+                        var excess = lastWriteTimeUtc.Ticks % TimeSpan.TicksPerSecond;
+                        _lastWriteTime = lastWriteTimeUtc.AddTicks(-excess);
+                    }
+
+                    return _lastWriteTime;
+                }
+            }
+
+            public long _size = long.MinValue;
+
+            public long Size
+            {
+                get
+                {
+                    if (_size == long.MinValue && Exists)
+                    {
+                        _size = _fi.Length;
+                    }
+
+                    return _size;
+                }
+            }
+
+            private string _contentHash;
+
+            public bool HasContentHash => _contentHash != null;
+            public string ContentHash => _contentHash;
+
+            public async Task<string> GetContentHash()
+            {
+                if (_contentHash == null && Exists)
+                {
+                    using (var hasher = new DropboxContentHasher())
+                    {
+                        byte[] buf = new byte[ReadBufferSize];
+                        int len;
+
+                        const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+
+                        using (var fs = new FileStream(_fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, options))
+                        {
+                            while ((len = await fs.ReadAsync(buf, 0, buf.Length)) > 0)
+                            {
+                                hasher.TransformBlock(buf, 0, len, null, 0);
+                            }
+                        }
+
+                        hasher.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                        _contentHash = DropboxContentHasher.ToHex(hasher.Hash);
+                    }
+                }
+
+                return _contentHash;
+            }
+
+            public bool HasFileNotFound { get; private set; }
+            public bool HasDateTimeDiff { get; private set; }
+            public bool HasSizeDiff { get; private set; }
+            public bool HasHashDiff { get; private set; }
+            public bool HasException => _exceptionMessage != null;
+
+            public bool HasError => HasFileNotFound || HasDateTimeDiff || HasSizeDiff || HasHashDiff || HasException;
+
+            private string _exceptionMessage;
+
+            public string ExceptionMessage => _exceptionMessage ?? string.Empty;
+
+            public void AddExceptionMessage(string exceptionMessage)
+            {
+                if (string.IsNullOrEmpty(_exceptionMessage))
+                    _exceptionMessage = exceptionMessage;
+                else
+                    _exceptionMessage += " | " + exceptionMessage;
+            }
+
+            public void AddExceptionMessage(Exception ex)
+            {
+                AddExceptionMessage(ex.Message);
+            }
+        }
+
+        private class FileStats
+        {
+            public int FileNotFoundCount;
+            public int FileFoundCount;
+            public int EqualCount;
+            public int LastWriteTimeCount;
+            public int SizeCount;
+            public int HashCount;
+            public int ErrorCount;
+        }
 
         private static DateTime ParseDateTimeAsUtc(string value)
         {
@@ -53,66 +231,265 @@ namespace DbxListFiles
             return long.Parse(value, NumberStyles.None, NumberFormatInfo.InvariantInfo);
         }
 
-        private async Task<TestFileResult> TestUserFile(string contentHash, DateTime clientModified, long size, string userFilePath)
+        private static async Task<string> CompareFiles(string path1, string path2)
         {
-            var result = new TestFileResult();
-
-            try
+            async Task<int> ReadBufferAsync(Stream stream, byte[] buffer, int offset, int count)
             {
-                var fi = new FileInfo(userFilePath);
-
-                if (!fi.Exists)
+                while (count > 0)
                 {
-                    result.Status = TestFileStatus.FileNotFound;
-                    return result;
-                }
+                    int length = await stream.ReadAsync(buffer, offset, count);
 
-                var lastWriteTimeUtc = fi.LastWriteTimeUtc;
-                result.LastWriteTime = lastWriteTimeUtc.AddTicks(-(lastWriteTimeUtc.Ticks % TimeSpan.TicksPerSecond));
-                result.Size = fi.Length;
-
-                if (result.LastWriteTime != clientModified)
-                {
-                    result.Status |= TestFileStatus.DateTimeDiff;
-                }
-
-                if (result.Size != size)
-                {
-                    result.Status |= TestFileStatus.SizeDiff;
-                }
-
-                using (var hasher = new DropboxContentHasher())
-                {
-                    byte[] buf = new byte[ReadBufferSize];
-                    int len;
-
-                    using (var fs = new FileStream(userFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
+                    if (length == 0)
                     {
-                        while ((len = await fs.ReadAsync(buf, 0, buf.Length)) > 0)
+                        break;
+                    }
+
+                    offset += length;
+                    count -= length;
+                }
+
+                return offset;
+            }
+
+            const FileOptions options = FileOptions.Asynchronous | FileOptions.SequentialScan;
+
+            var sb = new StringBuilder();
+
+            using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, options))
+            using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, options))
+            {
+                if (fs1.Length != fs2.Length)
+                {
+                    sb.AppendFormat("Files have different sizes.");
+                }
+                else
+                {
+                    byte[] buf1 = new byte[17];
+                    byte[] buf2 = new byte[17];
+
+                    int differenceCount = 0;
+                    int differenceLimit = 5;
+
+                    long offset = 0;
+                    long start = -1;
+                    int state = 0;
+
+                    while (differenceCount < differenceLimit)
+                    {
+                        var readTasks = new Task<int>[]
                         {
-                            hasher.TransformBlock(buf, 0, len, null, 0);
+                            ReadBufferAsync(fs1, buf1, 0, buf1.Length),
+                            ReadBufferAsync(fs2, buf2, 0, buf2.Length)
+                        };
+
+                        var lengths = await Task.WhenAll(readTasks);
+
+                        if (lengths[0] != lengths[1])
+                        {
+                            throw new IOException();
+                        }
+
+                        int length = lengths[0];
+
+                        if (length == 0)
+                        {
+                            break;
+                        }
+
+                        int i = 0;
+                        int j;
+
+                        while (i < length && differenceCount < differenceLimit)
+                        {
+                            if (state == 0) // Looking for different data
+                            {
+                                for (j = i; i < length && buf1[i] == buf2[i]; ++i)
+                                    ;
+
+                                offset += i - j;
+
+                                if (i < length)
+                                {
+                                    start = offset;
+                                    state = 1;
+                                }
+                            }
+                            else // Skipping the difference
+                            {
+                                for (j = i; i < length && buf1[i] != buf2[i]; ++i)
+                                    ;
+
+                                offset += i - j;
+
+                                if (i < length)
+                                {
+                                    if (sb.Length > 0)
+                                    {
+                                        sb.AppendLine();
+                                    }
+
+                                    sb.AppendFormat("Difference found at offset {0} (0x{0:X8}) length {1} (0x{1:X2}).", start, offset - start);
+
+                                    if (++differenceCount >= differenceLimit)
+                                    {
+                                        sb.Append(" Difference limit exceeded. Comparison aborted.");
+                                    }
+
+                                    start = -1;
+                                    state = 0;
+                                }
+                            }
                         }
                     }
 
-                    hasher.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-                    result.FileHash = DropboxContentHasher.ToHex(hasher.Hash);
-
-                    if (!string.Equals(result.FileHash, contentHash, StringComparison.OrdinalIgnoreCase))
+                    if (start > 0)
                     {
-                        result.Status |= TestFileStatus.HashDiff;
+                        if (sb.Length > 0)
+                        {
+                            sb.AppendLine();
+                        }
+
+                        sb.AppendFormat("Difference found at offset {0} (0x{0:X8}) length {1} (0x{1:X2}).", start, offset - start);
+                    }
+                }
+
+            }
+
+            return sb.ToString();
+        }
+
+        private static Task<string> CompareFiles(File file1, File file2)
+        {
+            return CompareFiles(file1.FullName, file2.FullName);
+        }
+
+        private async Task UpdateStats(FileStats stats, File file)
+        {
+            if (file.HasFileInfo)
+            {
+                if (!file.HasError)
+                {
+                    ++stats.FileFoundCount;
+                    ++stats.EqualCount;
+
+                    if (Verbose)
+                    {
+                        await WriteLineAsync(string.Format("[{0}] {1}: OK", file.Type, file.RelativePath));
+                    }
+                }
+                else if (file.HasFileNotFound)
+                {
+                    ++stats.FileNotFoundCount;
+
+                    if (Verbose)
+                    {
+                        await WriteLineAsync(string.Format("[{0}] {1}: file not found", file.Type, file.RelativePath));
+                    }
+                }
+                else
+                {
+                    ++stats.FileFoundCount;
+
+                    var sb = new StringBuilder();
+
+                    sb.AppendFormat("[{0}] {1}:", file.Type, file.RelativePath);
+
+                    if (file.HasDateTimeDiff)
+                    {
+                        ++stats.LastWriteTimeCount;
+                        sb.AppendFormat(" DateTimeError: [{0}={1} D={2}]", file.Type, file.LastWriteTime, file.ServerLastWriteTime);
+                    }
+
+                    if (file.HasSizeDiff)
+                    {
+                        ++stats.SizeCount;
+                        sb.AppendFormat(" SizeError: [{0}={1} D={2}]", file.Type, file.Size, file.ServerSize);
+                    }
+
+                    if (file.HasHashDiff)
+                    {
+                        ++stats.HashCount;
+                        var contentHash = await file.GetContentHash();
+                        sb.AppendFormat(" HashError: [{0}={1} D={2}]", file.Type, contentHash, file.ServerContentHash);
+                    }
+
+                    if (file.HasException)
+                    {
+                        ++stats.ErrorCount;
+                        sb.AppendFormat(" Exception: [{0}={1}]", file.Type, file.ExceptionMessage);
+                    }
+
+                    await WriteLineAsync(sb.ToString());
+                }
+            }
+        }
+
+        private async Task UpdateStats(FileStats[] stats, File[] files)
+        {
+            await UpdateStats(stats[USER], files[USER]);
+            await UpdateStats(stats[OTHER], files[OTHER]);
+
+            if (files[USER].Exists && files[OTHER].Exists)
+            {
+                ++stats[BOTH].FileFoundCount;
+
+                var sb = new StringBuilder();
+
+                if (files[USER].LastWriteTime != files[OTHER].LastWriteTime)
+                {
+                    ++stats[BOTH].LastWriteTimeCount;
+                    sb.AppendFormat(" DateTimeError: [{0}={1} {2}={3}]",
+                        files[USER].Type, files[USER].LastWriteTime,
+                        files[OTHER].Type, files[OTHER].LastWriteTime);
+                }
+
+                if (files[USER].Size != files[OTHER].Size)
+                {
+                    ++stats[BOTH].SizeCount;
+                    sb.AppendFormat(" SizeError: [{0}={1} {2}={3}]",
+                        files[USER].Type, files[USER].Size,
+                        files[OTHER].Type, files[OTHER].Size);
+                }
+
+                var userContentHash = await files[USER].GetContentHash();
+                var otherContentHash = await files[OTHER].GetContentHash();
+
+                if (!string.Equals(userContentHash, otherContentHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    ++stats[BOTH].HashCount;
+                    sb.AppendFormat(" HashError: [{0}={1} {2}={3}]",
+                        files[USER].Type, userContentHash,
+                        files[OTHER].Type, otherContentHash);
+                }
+
+                if (sb.Length == 0)
+                {
+                    ++stats[BOTH].EqualCount;
+                }
+                else
+                {
+                    await WriteLineAsync("[X] " + files[USER].RelativePath + ":" + sb.ToString());
+
+                    if (!string.Equals(files[USER].RelativePath, files[OTHER].RelativePath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        await WriteLineAsync("[Y] " + files[OTHER].RelativePath + ":" + sb.ToString());
+                    }
+
+                    if (!string.Equals(userContentHash, otherContentHash, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var message = await CompareFiles(files[USER], files[OTHER]);
+                        var lines = message.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (var line in lines)
+                        {
+                            await WriteLineAsync("[Z] " + files[USER].RelativePath + ": " + line);
+                        }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                result.Status |= TestFileStatus.Exception;
-                result.ExceptionMessage = ex.Message;
-            }
-
-            return result;
         }
 
-        private async Task TestUserFiles(string listFileName, string userRootPath, string otherRootPath)
+        private async Task TestFiles(string listFileName, string userRootPath, string otherRootPath, TestType testType)
         {
             int totalLineCount = 0;
 
@@ -126,31 +503,15 @@ namespace DbxListFiles
 
             using (var reader = new StreamReader(listFileName))
             {
+                var stats = new FileStats[]
+                {
+                    new FileStats(), // USER
+                    new FileStats(), // OTHER
+                    new FileStats()  // BOTH
+                };
+
                 int lineCount = 0;
                 int fileCount = 0;
-
-                int fileNotFoundCountUser = 0;
-                int fileFoundCountUser = 0;
-                int equalCountUser = 0;
-                int lastWriteTimeCountUser = 0;
-                int sizeCountUser = 0;
-                int hashCountUser = 0;
-                int errorCountUser = 0;
-
-                int fileNotFoundCountOther = 0;
-                int fileFoundCountOther = 0;
-                int equalCountOther = 0;
-                int lastWriteTimeCountOther = 0;
-                int sizeCountOther = 0;
-                int hashCountOther = 0;
-                int errorCountOther = 0;
-
-                int fileFoundCountBoth = 0;
-                int equalCountOtherBoth = 0;
-                int lastWriteTimeCountBoth = 0;
-                int sizeCountBoth = 0;
-                int hashCountBoth = 0;
-
                 int progress = -1;
 
                 string line;
@@ -194,176 +555,52 @@ namespace DbxListFiles
                     var serverModified = ParseDateTimeAsUtc(line.Substring(a + 1, b - (a + 1)));
                     var clientModified = ParseDateTimeAsUtc(line.Substring(b + 1, c - (b + 1)));
                     var size = ParseNumberAsLong(line.Substring(c + 1, d - (c + 1)));
-                    var pathDisplay = line.Substring(d + 2); // Removes leading '/'
+                    var relativePath = line.Substring(d + 2); // Removes leading '/'
 
-                    var userFilePath = userRootPath != null ? Path.Combine(userRootPath, pathDisplay) : null;
-                    var otherFilePath = otherRootPath != null ? Path.Combine(otherRootPath, pathDisplay) : null;
+                    //if (!relativePath.StartsWith("prill/projetos/Azul Seguros", StringComparison.OrdinalIgnoreCase))
+                    //    continue;
 
-                    var tasks = new Task<TestFileResult>[]
+                    var files = new File[]
                     {
-                        userFilePath != null ? TestUserFile(contentHash, clientModified, size, userFilePath) : Task.FromResult<TestFileResult>(null),
-                        otherFilePath != null ? TestUserFile(contentHash, clientModified, size, otherFilePath) : Task.FromResult<TestFileResult>(null)
+                        new File("U", userRootPath, relativePath, clientModified, size, contentHash),
+                        new File("O", otherRootPath, relativePath, clientModified, size, contentHash)
                     };
 
-                    var results = await Task.WhenAll(tasks);
+                    var testFileInfoTasks = new Task[]
+                    {
+                        files[0].TestInfo(),
+                        files[1].TestInfo()
+                    };
+
+                    await Task.WhenAll(testFileInfoTasks);
+
+                    if (testType == TestType.TestContent || (files[USER].Exists && files[OTHER].Exists))
+                    {
+                        var testFileContentTasks = new Task[]
+                        {
+                            files[0].TestContent(),
+                            files[1].TestContent()
+                        };
+
+                        await Task.WhenAll(testFileContentTasks);
+                    }
+                    else if (testType == TestType.SetDate)
+                    {
+                        if (files[USER].HasError || files[OTHER].HasError)
+                        {
+                            var testFileContentTasks = new Task[]
+                            {
+                                files[0].TestContent(),
+                                files[1].TestContent()
+                            };
+
+                            await Task.WhenAll(testFileContentTasks);
+                        }
+                    }
 
                     ++fileCount;
 
-                    if (results[0] != null)
-                    {
-                        if (results[0].Status == TestFileStatus.Success)
-                        {
-                            ++fileFoundCountUser;
-                            ++equalCountUser;
-
-                            if (Verbose)
-                            {
-                                await WriteLineAsync(string.Format("[U] {0}: OK", pathDisplay));
-                            }
-                        }
-                        else if (results[0].Status == TestFileStatus.FileNotFound)
-                        {
-                            ++fileNotFoundCountUser;
-
-                            if (Verbose)
-                            {
-                                await WriteLineAsync(string.Format("[U] {0}: file not found", pathDisplay));
-                            }
-                        }
-                        else
-                        {
-                            ++fileFoundCountUser;
-
-                            var sb = new StringBuilder();
-
-                            sb.Append("[U] ");
-                            sb.Append(pathDisplay);
-                            sb.Append(":");
-
-                            if ((results[0].Status & TestFileStatus.DateTimeDiff) != 0)
-                            {
-                                ++lastWriteTimeCountUser;
-                                sb.AppendFormat(" DateTimeError: [U={0} D={1}]", results[0].LastWriteTime, clientModified);
-                            }
-
-                            if ((results[0].Status & TestFileStatus.SizeDiff) != 0)
-                            {
-                                ++sizeCountUser;
-                                sb.AppendFormat(" SizeError: [U={0} D={1}]", results[0].Size, size);
-                            }
-
-                            if ((results[0].Status & TestFileStatus.HashDiff) != 0)
-                            {
-                                ++hashCountUser;
-                                sb.AppendFormat(" HashError: [U={0} D={1}]", results[0].FileHash, contentHash);
-                            }
-
-                            if ((results[0].Status & TestFileStatus.Exception) != 0)
-                            {
-                                ++errorCountUser;
-                                sb.AppendFormat(" Exception: [{0}]", results[0].ExceptionMessage);
-                            }
-
-                            await WriteLineAsync(sb.ToString());
-                        }
-                    }
-
-                    if (results[1] != null)
-                    {
-                        if (results[1].Status == TestFileStatus.Success)
-                        {
-                            ++fileFoundCountOther;
-                            ++equalCountOther;
-
-                            if (Verbose)
-                            {
-                                await WriteLineAsync(string.Format("[O] {0}: OK", pathDisplay));
-                            }
-                        }
-                        else if (results[1].Status == TestFileStatus.FileNotFound)
-                        {
-                            ++fileNotFoundCountOther;
-
-                            if (Verbose)
-                            {
-                                await WriteLineAsync(string.Format("[O] {0}: file not found", pathDisplay));
-                            }
-                        }
-                        else
-                        {
-                            ++fileFoundCountOther;
-
-                            var sb = new StringBuilder();
-
-                            sb.Append("[O] ");
-                            sb.Append(pathDisplay);
-                            sb.Append(":");
-
-                            if ((results[1].Status & TestFileStatus.DateTimeDiff) != 0)
-                            {
-                                ++lastWriteTimeCountOther;
-                                sb.AppendFormat(" DateTimeError: [O={0} D={1}]", results[1].LastWriteTime, clientModified);
-                            }
-
-                            if ((results[1].Status & TestFileStatus.SizeDiff) != 0)
-                            {
-                                ++sizeCountOther;
-                                sb.AppendFormat(" SizeError: [O={0} D={1}]", results[1].Size, size);
-                            }
-
-                            if ((results[1].Status & TestFileStatus.HashDiff) != 0)
-                            {
-                                ++hashCountOther;
-                                sb.AppendFormat(" HashError: [O={0} D={1}]", results[1].FileHash, contentHash);
-                            }
-
-                            if ((results[1].Status & TestFileStatus.Exception) != 0)
-                            {
-                                ++errorCountOther;
-                                sb.AppendFormat(" Exception: [{0}]", results[1].ExceptionMessage);
-                            }
-
-                            await WriteLineAsync(sb.ToString());
-                        }
-                    }
-
-                    if (results[0] != null && results[1] != null)
-                    {
-                        if (results[0].Status != TestFileStatus.FileNotFound && (results[0].Status & TestFileStatus.Exception) == 0 &&
-                            results[1].Status != TestFileStatus.FileNotFound && (results[1].Status & TestFileStatus.Exception) == 0)
-                        {
-                            ++fileFoundCountBoth;
-
-                            var sbx = new StringBuilder();
-
-                            if (results[0].LastWriteTime != results[1].LastWriteTime)
-                            {
-                                ++lastWriteTimeCountBoth;
-                                sbx.AppendFormat(" DateTimeError: [U={0} O={1}]", results[0].LastWriteTime, results[1].LastWriteTime);
-                            }
-
-                            if (results[0].Size != results[1].Size)
-                            {
-                                ++sizeCountBoth;
-                                sbx.AppendFormat(" SizeError: [U={0} O={1}]", results[0].Size, results[1].Size);
-                            }
-
-                            if (results[0].FileHash != results[1].FileHash)
-                            {
-                                ++hashCountBoth;
-                                sbx.AppendFormat(" HashError: [U={0} O={1}]", results[0].FileHash, results[1].FileHash);
-                            }
-
-                            if (sbx.Length == 0)
-                            {
-                                ++equalCountOtherBoth;
-                            }
-                            else
-                            {
-                                await WriteLineAsync("[X] " + pathDisplay + ":" + sbx.ToString());
-                            }
-                        }
-                    }
+                    await UpdateStats(stats, files);
                 }
 
                 await Console.Out.WriteLineAsync();
@@ -372,37 +609,38 @@ namespace DbxListFiles
                 if (userRootPath != null)
                 {
                     await Console.Out.WriteLineAsync();
-                    await Console.Out.WriteLineAsync(string.Format("Files not found in 'user' folder..............: {0}", fileNotFoundCountUser));
+                    await Console.Out.WriteLineAsync(string.Format("Files not found in 'user' folder..............: {0}", stats[USER].FileNotFoundCount));
                     await Console.Out.WriteLineAsync();
-                    await Console.Out.WriteLineAsync(string.Format("Files found in 'user' folder..................: {0}", fileFoundCountUser));
-                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCountUser));
-                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCountUser));
-                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCountUser));
-                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCountUser));
-                    await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", errorCountUser));
+                    await Console.Out.WriteLineAsync(string.Format("Files found in 'user' folder..................: {0}", stats[USER].FileFoundCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", stats[USER].EqualCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", stats[USER].LastWriteTimeCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", stats[USER].SizeCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", stats[USER].HashCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", stats[USER].ErrorCount));
                 }
 
                 if (otherRootPath != null)
                 {
                     await Console.Out.WriteLineAsync();
-                    await Console.Out.WriteLineAsync(string.Format("Files not found in 'other' folder.............: {0}", fileNotFoundCountOther));
+                    await Console.Out.WriteLineAsync(string.Format("Files not found in 'other' folder.............: {0}", stats[OTHER].FileNotFoundCount));
                     await Console.Out.WriteLineAsync();
-                    await Console.Out.WriteLineAsync(string.Format("Files found in 'other' folder.................: {0}", fileFoundCountOther));
-                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCountOther));
-                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCountOther));
-                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCountOther));
-                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCountOther));
-                    await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", errorCountOther));
+                    await Console.Out.WriteLineAsync(string.Format("Files found in 'other' folder.................: {0}", stats[OTHER].FileFoundCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", stats[OTHER].EqualCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", stats[OTHER].LastWriteTimeCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", stats[OTHER].SizeCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", stats[OTHER].HashCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", stats[OTHER].ErrorCount));
                 }
 
                 if (userRootPath != null && otherRootPath != null)
                 {
                     await Console.Out.WriteLineAsync();
-                    await Console.Out.WriteLineAsync(string.Format("Files read in both 'user' and 'other' folders.: {0}", fileFoundCountBoth));
-                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", equalCountOtherBoth));
-                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", lastWriteTimeCountBoth));
-                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", sizeCountBoth));
-                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", hashCountBoth));
+                    await Console.Out.WriteLineAsync(string.Format("Files found in both 'user' and 'other' folders: {0}", stats[BOTH].FileFoundCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with no differences.....................: {0}", stats[BOTH].EqualCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different LastWriteTime............: {0}", stats[BOTH].LastWriteTimeCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Size.....................: {0}", stats[BOTH].SizeCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with different Hash.....................: {0}", stats[BOTH].HashCount));
+                    await Console.Out.WriteLineAsync(string.Format("      with read error.........................: {0}", stats[BOTH].ErrorCount));
                 }
             }
         }
@@ -474,17 +712,17 @@ namespace DbxListFiles
             {
                 await OutputWriter.WriteLineAsync(value);
             }
-            else
-            {
-                await Console.Out.WriteLineAsync(value);
-            }
+
+            await Console.Out.WriteLineAsync(value);
         }
 
         private enum CommandOption
         {
             None,
             CreateListFile,
-            TestUserFiles
+            TestUserFilesContent,
+            TestUserFilesInfo,
+            SetUserFilesDate
         };
 
         private readonly string ProgramName = "DbxListFiles";
@@ -504,7 +742,9 @@ namespace DbxListFiles
             var p = new NDesk.Options.OptionSet()
             {
                 { "c|create=", "create Dropbox data file", v => { option = CommandOption.CreateListFile; listFileName = v; } },
-                { "t|test=", "test local files against Dropbox data file", v => { option = CommandOption.TestUserFiles; listFileName = v; }},
+                { "t|test=", "test local files content against Dropbox data file", v => { option = CommandOption.TestUserFilesContent; listFileName = v; }},
+                { "i|info=", "test local files info against Dropbox data file", v => { option = CommandOption.TestUserFilesInfo; listFileName = v; } },
+                { "d|date=", "set local files dates from Dropbox data file", v => { option = CommandOption.SetUserFilesDate; listFileName = v; } },
                 { "u|user=", "user's Dropbox directory", v => userRootPath = v },
                 { "o|other=", "other Dropbox directory", v => otherRootPath = v },
                 { "r|report=", "output report file", v => OutputWriter = new StreamWriter(v) },
@@ -535,6 +775,16 @@ namespace DbxListFiles
                     throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
                 }
 
+                if (string.IsNullOrWhiteSpace(userRootPath))
+                {
+                    userRootPath = null;
+                }
+
+                if (string.IsNullOrWhiteSpace(otherRootPath))
+                {
+                    otherRootPath = null;
+                }
+
                 switch (option)
                 {
                     case CommandOption.CreateListFile:
@@ -547,22 +797,34 @@ namespace DbxListFiles
                         await CreateListFile(listFileName);
                         break;
 
-                    case CommandOption.TestUserFiles:
+                    case CommandOption.TestUserFilesContent:
 
                         if (string.IsNullOrEmpty(listFileName) || string.IsNullOrEmpty(userRootPath))
                         {
                             throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
                         }
 
-                        if (string.IsNullOrEmpty(otherRootPath))
+                        await TestFiles(listFileName, userRootPath, otherRootPath, TestType.TestContent);
+                        break;
+
+                    case CommandOption.TestUserFilesInfo:
+
+                        if (string.IsNullOrEmpty(listFileName) || string.IsNullOrEmpty(userRootPath))
                         {
-                            await TestUserFiles(listFileName, userRootPath, null);
-                        }
-                        else
-                        {
-                            await TestUserFiles(listFileName, userRootPath, otherRootPath);
+                            throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
                         }
 
+                        await TestFiles(listFileName, userRootPath, otherRootPath, TestType.TestInfo);
+                        break;
+
+                    case CommandOption.SetUserFilesDate:
+
+                        if (string.IsNullOrEmpty(listFileName) || string.IsNullOrEmpty(userRootPath))
+                        {
+                            throw new NDesk.Options.OptionException(UnrecognizedArguments, string.Empty);
+                        }
+
+                        await TestFiles(listFileName, userRootPath, otherRootPath, TestType.SetDate);
                         break;
 
                     default:
@@ -587,8 +849,11 @@ namespace DbxListFiles
         {
             try
             {
-                var p = new Program();
-                await p.Run(args);
+                using (new MyCrono(sw => Console.Out.WriteLine("Elapsed: {0}", sw.Elapsed)))
+                {
+                    var p = new Program();
+                    await p.Run(args);
+                }
             }
             catch (Exception ex)
             {
