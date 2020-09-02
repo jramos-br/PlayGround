@@ -12,27 +12,62 @@ namespace BlackScreen
 {
     public partial class Form1 : Form
     {
+        private bool _fullscreen;
+        private Rectangle _bounds;
+
         public Form1()
         {
             InitializeComponent();
 
-            this.BackColor = Color.Black;
-
-            GoFullscreen(true);
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = nameof(BlackScreen);
+            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            BackColor = Color.Black;
         }
 
-        private void GoFullscreen(bool fullscreen)
+        protected override void OnLoad(EventArgs e)
         {
-            if (fullscreen)
+            SetFullscreenMode(true);
+            base.OnLoad(e);
+        }
+
+        protected override void OnKeyPress(System.Windows.Forms.KeyPressEventArgs e)
+        {
+            switch (e.KeyChar)
             {
-                this.WindowState = FormWindowState.Normal;
-                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-                this.Bounds = Screen.PrimaryScreen.Bounds;
+                case (Char)Keys.Escape:
+                    Close();
+                    e.Handled = true;
+                    break;
+                case '-':
+                    if (WindowState == FormWindowState.Normal)
+                        WindowState = FormWindowState.Minimized;
+                    break;
+                default:
+                    if (WindowState == FormWindowState.Normal)
+                        SetFullscreenMode(!_fullscreen);
+                    break;
             }
-            else
+        }
+
+        private void SetFullscreenMode(bool fullscreen)
+        {
+            if (fullscreen != _fullscreen)
             {
-                this.WindowState = FormWindowState.Maximized;
-                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+                if (fullscreen)
+                {
+                    _bounds = Bounds;
+                    FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+                    Bounds = Screen.FromControl(this).Bounds;
+                }
+                else
+                {
+                    FormBorderStyle = FormBorderStyle.FixedDialog;
+                    Bounds = _bounds;
+                }
+
+                _fullscreen = fullscreen;
             }
         }
     }
