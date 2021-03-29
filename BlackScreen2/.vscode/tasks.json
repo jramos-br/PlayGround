@@ -1,31 +1,31 @@
 {
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://code.visualstudio.com/docs/editor/tasks
+  // For information about cl.exe, visit: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-command-line-syntax
   "version": "2.0.0",
   "tasks": [
     {
       "type": "cppbuild",
-      "label": "C/C++: cl.exe x86 debug build",
+      "label": "C/C++: cl.exe Win32 Debug Build",
       "command": "vsruncl.bat",
       "args": [
-        "/x86",
-        "/nologo",
+        "/win32-debug",
         "/RTC1",
+        "/sdl",
         "/Od",
         "/Oy-",
         "/MDd",
-        "/D",
-        "WIN32",
-        "/D",
-        "_DEBUG",
-        "/D",
-        "_UNICODE",
-        "/D",
-        "UNICODE",
+        "/D_DEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
         "/W4",
         "/Zc:inline",
         "/Zi",
         "/EHsc",
-        "/Fd${workspaceFolderBasename}.pdb",
-        "/Fe${workspaceFolderBasename}.exe",
+        "/FoDebug/",
+        "/FdDebug/${workspaceFolderBasename}.pdb",
+        "/FeDebug/${workspaceFolderBasename}.exe",
         "*.c*",
         "/link",
         "/incremental:no"
@@ -34,36 +34,38 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": [
-        "$msCompile"
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
       ],
       "group": "build",
-      "detail": "compiler: cl.exe"
+      "detail": "compiler: cl.exe, configuration: debug, platform: Win32"
     },
     {
       "type": "cppbuild",
-      "label": "C/C++: cl.exe x86 release build",
+      "label": "C/C++: cl.exe Win32 Release Build",
       "command": "vsruncl.bat",
       "args": [
-        "/x86",
-        "/nologo",
+        "/win32-release",
+        "/sdl",
         "/O2",
         "/Oy-",
         "/Oi",
         "/MD",
-        "/D",
-        "WIN32",
-        "/D",
-        "NDEBUG",
-        "/D",
-        "_UNICODE",
-        "/D",
-        "UNICODE",
+        "/DNDEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
         "/W4",
         "/Zc:inline",
         "/Zi",
         "/EHsc",
-        "/Fd${workspaceFolderBasename}.pdb",
-        "/Fe${workspaceFolderBasename}.exe",
+        "/FoRelease/",
+        "/FdRelease/${workspaceFolderBasename}.pdb",
+        "/FeRelease/${workspaceFolderBasename}.exe",
         "*.c*",
         "/link",
         "/incremental:no"
@@ -72,36 +74,38 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": [
-        "$msCompile"
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
       ],
       "group": "build",
-      "detail": "compiler: cl.exe"
+      "detail": "compiler: cl.exe, configuration: release, platform: Win32"
     },
     {
       "type": "cppbuild",
-      "label": "C/C++: cl.exe x64 debug build",
+      "label": "C/C++: cl.exe x64 Debug Build",
       "command": "vsruncl.bat",
       "args": [
-        "/amd64",
-        "/nologo",
+        "/x64-debug",
         "/RTC1",
+        "/sdl",
         "/Od",
         "/Oy-",
         "/MDd",
-        "/D",
-        "WIN32",
-        "/D",
-        "_DEBUG",
-        "/D",
-        "_UNICODE",
-        "/D",
-        "UNICODE",
+        "/D_DEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
         "/W4",
         "/Zc:inline",
         "/Zi",
         "/EHsc",
-        "/Fd${workspaceFolderBasename}.pdb",
-        "/Fe${workspaceFolderBasename}.exe",
+        "/Fox64/Debug/",
+        "/Fdx64/Debug/${workspaceFolderBasename}.pdb",
+        "/Fex64/Debug/${workspaceFolderBasename}.exe",
         "*.c*",
         "/link",
         "/incremental:no"
@@ -110,36 +114,38 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": [
-        "$msCompile"
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
       ],
       "group": "build",
-      "detail": "compiler: cl.exe"
+      "detail": "compiler: cl.exe, configuration: debug, platform: x64"
     },
     {
       "type": "cppbuild",
-      "label": "C/C++: cl.exe x64 release build",
+      "label": "C/C++: cl.exe x64 Release Build",
       "command": "vsruncl.bat",
       "args": [
-        "/amd64",
-        "/nologo",
+        "/x64-release",
+        "/sdl",
         "/O2",
         "/Oy-",
         "/Oi",
         "/MD",
-        "/D",
-        "WIN32",
-        "/D",
-        "NDEBUG",
-        "/D",
-        "_UNICODE",
-        "/D",
-        "UNICODE",
+        "/DNDEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
         "/W4",
         "/Zc:inline",
         "/Zi",
         "/EHsc",
-        "/Fd${workspaceFolderBasename}.pdb",
-        "/Fe${workspaceFolderBasename}.exe",
+        "/Fox64/Release/",
+        "/Fdx64/Release/${workspaceFolderBasename}.pdb",
+        "/Fex64/Release/${workspaceFolderBasename}.exe",
         "*.c*",
         "/link",
         "/incremental:no"
@@ -148,10 +154,176 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": [
-        "$msCompile"
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
       ],
       "group": "build",
-      "detail": "compiler: cl.exe"
+      "detail": "compiler: cl.exe, configuration: release, platform: x64"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe ARM Debug Build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/arm-debug",
+        "/RTC1",
+        "/sdl",
+        "/Od",
+        "/Oy-",
+        "/MDd",
+        "/D_DEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
+        "/W4",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/FoARM/Debug/",
+        "/FdARM/Debug/${workspaceFolderBasename}.pdb",
+        "/FeARM/Debug/${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
+      ],
+      "group": "build",
+      "detail": "compiler: cl.exe, configuration: debug, platform: ARM"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe ARM Release Build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/arm-release",
+        "/sdl",
+        "/O2",
+        "/Oy-",
+        "/Oi",
+        "/MD",
+        "/DNDEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
+        "/W4",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/FoARM/Release/",
+        "/FdARM/Release/${workspaceFolderBasename}.pdb",
+        "/FeARM/Release/${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
+      ],
+      "group": "build",
+      "detail": "compiler: cl.exe, configuration: release, platform: ARM"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe ARM64 Debug Build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/arm64-debug",
+        "/RTC1",
+        "/sdl",
+        "/Od",
+        "/Oy-",
+        "/MDd",
+        "/D_DEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
+        "/W4",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/FoARM64/Debug/",
+        "/FdARM64/Debug/${workspaceFolderBasename}.pdb",
+        "/FeARM64/Debug/${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
+      ],
+      "group": "build",
+      "detail": "compiler: cl.exe, configuration: debug, platform: ARM64"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe ARM64 Release Build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/arm64-release",
+        "/sdl",
+        "/O2",
+        "/Oy-",
+        "/Oi",
+        "/MD",
+        "/DNDEBUG",
+        "/D_UNICODE",
+        "/DUNICODE",
+        "/W4",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/FoARM64/Release/",
+        "/FdARM64/Release/${workspaceFolderBasename}.pdb",
+        "/FeARM64/Release/${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
+      ],
+      "group": "build",
+      "detail": "compiler: cl.exe, configuration: release, platform: ARM64"
     }
   ]
 }

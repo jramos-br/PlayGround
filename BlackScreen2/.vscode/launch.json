@@ -5,10 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C/C++ Launch (Windows)",
+      "name": "C/C++: Win32 Debug Launch (Windows)",
       "type": "cppvsdbg",
       "request": "launch",
-      "program": "${workspaceFolderBasename}.exe",
+      "program": "Debug/${workspaceFolderBasename}.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "console": "externalTerminal"
+    },
+    {
+      "name": "C/C++: x64 Debug Launch (Windows)",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "x64/Debug/${workspaceFolderBasename}.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",

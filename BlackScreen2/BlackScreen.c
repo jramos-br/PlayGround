@@ -1,3 +1,20 @@
+// The BlackScreen program.
+//
+// Creates a full screen black window.
+//
+// Copyright (c) 2021 Jorge Ramos (mailto jramos at pobox dot com)
+//
+// This is free software. Redistribution and use in source and binary forms,
+// with or without modification, for any purpose and with or without fee are
+// hereby permitted. Altered source versions must be plainly marked as such.
+//
+// If you find this software useful, an acknowledgment would be appreciated
+// but is not required.
+//
+// THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OR CONDITION.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
+// FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
+
 #include <Windows.h>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

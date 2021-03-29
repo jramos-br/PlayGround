@@ -1,4 +1,7 @@
 {
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://code.visualstudio.com/docs/cpp/config-msvc
   "configurations": [
     {
       "name": "Win32 x86 Debug",
@@ -11,7 +14,7 @@
         "_UNICODE"
       ],
       "windowsSdkVersion": "10.0.19041.0",
-      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx86/x86/cl.exe",
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29910/bin/Hostx86/x86/cl.exe",
       "cStandard": "c11",
       "cppStandard": "c++14",
       "intelliSenseMode": "windows-msvc-x86"
@@ -27,7 +30,7 @@
         "_UNICODE"
       ],
       "windowsSdkVersion": "10.0.19041.0",
-      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx86/x86/cl.exe",
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29910/bin/Hostx86/x86/cl.exe",
       "cStandard": "c11",
       "cppStandard": "c++14",
       "intelliSenseMode": "windows-msvc-x86"
@@ -43,7 +46,7 @@
         "_UNICODE"
       ],
       "windowsSdkVersion": "10.0.19041.0",
-      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe",
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29910/bin/Hostx86/x64/cl.exe",
       "cStandard": "c11",
       "cppStandard": "c++14",
       "intelliSenseMode": "windows-msvc-x64"
@@ -59,7 +62,7 @@
         "_UNICODE"
       ],
       "windowsSdkVersion": "10.0.19041.0",
-      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/cl.exe",
+      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.28.29910/bin/Hostx86/x64/cl.exe",
       "cStandard": "c11",
       "cppStandard": "c++14",
       "intelliSenseMode": "windows-msvc-x64"
