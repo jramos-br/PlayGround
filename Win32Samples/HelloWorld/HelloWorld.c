@@ -1,6 +1,39 @@
+// The Win32 HelloWorld program.
+//
+// Copyright (c) 2021 Jorge Ramos (mailto jramos at pobox dot com)
+//
+// This is free software. Redistribution and use in source and binary forms,
+// with or without modification, for any purpose and with or without fee are
+// hereby permitted. Altered source versions must be plainly marked as such.
+//
+// If you find this software useful, an acknowledgment would be appreciated
+// but is not required.
+//
+// THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OR CONDITION.
+// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE TO ANYONE
+// FOR ANY DAMAGES RELATED TO THIS SOFTWARE, UNDER ANY KIND OF LEGAL CLAIM.
+
 #include <Windows.h>
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    PAINTSTRUCT ps;
+    HDC hdc;
+
+    switch (uMsg)
+    {
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+
+    case WM_PAINT:
+        hdc = BeginPaint(hwnd, &ps);
+        EndPaint(hwnd, &ps);
+        return 0;
+    }
+
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -9,6 +42,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     LPCTSTR lpszClassName = TEXT("HelloWorld Window Class");
     LPCTSTR lpszWindowName = TEXT("HelloWorld");
+    LPCTSTR lpszRegisterClassError = TEXT("Could not register the window class.");
+    LPCTSTR lpszCreateWindowError = TEXT("Could not create the main window.");
 
     // Register the window class.
 
@@ -17,30 +52,37 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.lpszClassName = lpszClassName;
 
-    RegisterClass(&wc);
+    if (!RegisterClass(&wc))
+    {
+        MessageBox(NULL, lpszRegisterClassError, NULL, MB_ICONERROR);
+        return 0;
+    }
+
+    // Set the window position and size.
+
+    int x = CW_USEDEFAULT;
+    int y = CW_USEDEFAULT;
+    int nWidth = CW_USEDEFAULT;
+    int nHeight = CW_USEDEFAULT;
 
     // Create the window.
 
-    HWND hwnd = CreateWindowEx(
-        0,                   // Optional window styles
-        lpszClassName,       // Window class
-        lpszWindowName,      // Window text
-        WS_OVERLAPPEDWINDOW, // Window style
+    DWORD dwStyle = WS_OVERLAPPEDWINDOW;
+    HWND hwndParent = NULL;
+    HMENU hMenu = NULL;
+    LPVOID lpParam = NULL;
 
-        // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-        NULL,      // Parent window
-        NULL,      // Menu
-        hInstance, // Instance handle
-        NULL       // Additional application data
-    );
-
+    HWND hwnd = CreateWindow(lpszClassName, lpszWindowName, dwStyle,
+                             x, y, nWidth, nHeight,
+                             hwndParent, hMenu, hInstance, lpParam);
     if (hwnd == NULL)
     {
-        return FALSE;
+        MessageBox(NULL, lpszCreateWindowError, NULL, MB_ICONERROR);
+        return 0;
     }
 
     ShowWindow(hwnd, nCmdShow);
@@ -64,28 +106,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         DispatchMessage(&msg);
     }
 
-    return msg.wParam;
+    // Unregister the window class.
+
+    UnregisterClass(lpszClassName, hInstance);
+
+    // Exit program.
+
+    return (int)msg.wParam;
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    PAINTSTRUCT ps;
-    HDC hdc;
-
-    switch (uMsg)
-    {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-
-    case WM_PAINT:
-        hdc = BeginPaint(hwnd, &ps);
-        FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-        EndPaint(hwnd, &ps);
-        return 0;
-    }
-
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-
+#pragma comment(lib, "Kernel32.lib")
 #pragma comment(lib, "User32.lib")
+#pragma comment(lib, "Gdi32.lib")
