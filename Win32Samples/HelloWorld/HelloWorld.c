@@ -15,6 +15,17 @@
 
 #include <Windows.h>
 
+void ErrorBox(LPCTSTR lpszText)
+{
+    MSG msg;
+
+    while (PeekMessage(&msg, (HWND)-1, WM_QUIT, WM_QUIT, PM_REMOVE))
+    {
+    }
+
+    MessageBox(NULL, lpszText, NULL, MB_OK | MB_ICONERROR);
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT ps;
@@ -44,6 +55,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     LPCTSTR lpszWindowName = TEXT("HelloWorld");
     LPCTSTR lpszRegisterClassError = TEXT("Could not register the window class.");
     LPCTSTR lpszCreateWindowError = TEXT("Could not create the main window.");
+    LPCTSTR lpszGetMessageError = TEXT("Could not retrieve a message from the thread's message queue.");
 
     // Register the window class.
 
@@ -58,8 +70,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     if (!RegisterClass(&wc))
     {
-        MessageBox(NULL, lpszRegisterClassError, NULL, MB_ICONERROR);
-        return 0;
+        ErrorBox(lpszRegisterClassError);
+        return FALSE;
     }
 
     // Set the window position and size.
@@ -81,8 +93,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
                              hwndParent, hMenu, hInstance, lpParam);
     if (hwnd == NULL)
     {
-        MessageBox(NULL, lpszCreateWindowError, NULL, MB_ICONERROR);
-        return 0;
+        ErrorBox(lpszCreateWindowError);
+        return FALSE;
     }
 
     ShowWindow(hwnd, nCmdShow);
@@ -92,12 +104,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     BOOL bRet;
     MSG msg;
-    ZeroMemory(&msg, sizeof(msg));
 
     while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
     {
         if (bRet == -1)
         {
+            ErrorBox(lpszGetMessageError);
             msg.wParam = FALSE;
             break;
         }
@@ -105,10 +117,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-
-    // Unregister the window class.
-
-    UnregisterClass(lpszClassName, hInstance);
 
     // Exit program.
 
