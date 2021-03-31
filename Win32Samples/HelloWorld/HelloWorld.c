@@ -15,6 +15,12 @@
 
 #include <Windows.h>
 
+static const TCHAR szClassName[] = TEXT("HelloWorld Window Class");
+static const TCHAR szWindowName[] = TEXT("HelloWorld");
+static const TCHAR szRegisterClassError[] = TEXT("Could not register the window class.");
+static const TCHAR szCreateWindowError[] = TEXT("Could not create the main window.");
+static const TCHAR szGetMessageError[] = TEXT("Could not retrieve a message from the thread's message queue.");
+
 void ErrorBox(LPCTSTR lpszText)
 {
     MSG msg;
@@ -48,52 +54,39 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+    WNDCLASS wc;
+    HWND hwnd;
+    BOOL bRet;
+    MSG msg;
+
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    LPCTSTR lpszClassName = TEXT("HelloWorld Window Class");
-    LPCTSTR lpszWindowName = TEXT("HelloWorld");
-    LPCTSTR lpszRegisterClassError = TEXT("Could not register the window class.");
-    LPCTSTR lpszCreateWindowError = TEXT("Could not create the main window.");
-    LPCTSTR lpszGetMessageError = TEXT("Could not retrieve a message from the thread's message queue.");
-
     // Register the window class.
 
-    WNDCLASS wc;
     ZeroMemory(&wc, sizeof(wc));
 
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wc.lpszClassName = lpszClassName;
+    wc.lpszClassName = szClassName;
 
     if (!RegisterClass(&wc))
     {
-        ErrorBox(lpszRegisterClassError);
+        ErrorBox(szRegisterClassError);
         return FALSE;
     }
 
-    // Set the window position and size.
-
-    int x = CW_USEDEFAULT;
-    int y = CW_USEDEFAULT;
-    int nWidth = CW_USEDEFAULT;
-    int nHeight = CW_USEDEFAULT;
-
     // Create the window.
 
-    DWORD dwStyle = WS_OVERLAPPEDWINDOW;
-    HWND hwndParent = NULL;
-    HMENU hMenu = NULL;
-    LPVOID lpParam = NULL;
+    hwnd = CreateWindow(szClassName, szWindowName, WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        NULL, NULL, hInstance, NULL);
 
-    HWND hwnd = CreateWindow(lpszClassName, lpszWindowName, dwStyle,
-                             x, y, nWidth, nHeight,
-                             hwndParent, hMenu, hInstance, lpParam);
     if (hwnd == NULL)
     {
-        ErrorBox(lpszCreateWindowError);
+        ErrorBox(szCreateWindowError);
         return FALSE;
     }
 
@@ -102,14 +95,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     // Run the message loop.
 
-    BOOL bRet;
-    MSG msg;
-
     while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
     {
         if (bRet == -1)
         {
-            ErrorBox(lpszGetMessageError);
+            ErrorBox(szGetMessageError);
             msg.wParam = FALSE;
             break;
         }
