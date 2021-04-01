@@ -15,11 +15,11 @@
 
 #include <Windows.h>
 
-static const TCHAR szClassName[] = TEXT("HelloWorld Window Class");
-static const TCHAR szWindowName[] = TEXT("HelloWorld");
-static const TCHAR szRegisterClassError[] = TEXT("Could not register the window class.");
-static const TCHAR szCreateWindowError[] = TEXT("Could not create the main window.");
-static const TCHAR szGetMessageError[] = TEXT("Could not retrieve a message from the thread's message queue.");
+const TCHAR szClassName[] = TEXT("HelloWorld Window Class");
+const TCHAR szWindowName[] = TEXT("HelloWorld");
+const TCHAR szRegisterClassError[] = TEXT("Could not register the window class.");
+const TCHAR szCreateWindowError[] = TEXT("Could not create the main window.");
+const TCHAR szGetMessageError[] = TEXT("Could not retrieve a message from the thread's message queue.");
 
 void ErrorBox(LPCTSTR lpszText)
 {
