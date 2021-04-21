@@ -18,6 +18,15 @@
 
   rem https://gcc.gnu.org/onlinedocs/gcc/Invoking-GCC.html
 
+  set PARAMS="%*"
+  set PARAMS="%PARAMS:"=%"
+  set PARAMS=%PARAMS:  = %
+  set PARAMS=%PARAMS:  = %
+  set PARAMS=%PARAMS: =" "%
+  call :start %PARAMS%
+  exit /b %ERRORLEVEL%
+
+:start
   set DEBUG=0
   set CONSOLEAPP=
   set WINDOWSAPP=
@@ -194,9 +203,8 @@
 
   if "%CFILES%" == "" goto rungpp
 
-  if "%DEBUG%" == "1" echo on
+  if "%DEBUG%" == "1" echo gcc %XFLAGS% %GFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS%
   gcc %XFLAGS% %GFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS% 2>&1
-  @if "%DEBUG%" == "1" echo off
   if not "%ERRORLEVEL%" == "0" exit /b 3
 
 :rungpp
@@ -212,9 +220,8 @@
     exit /b 3
   )
 
-  if "%DEBUG%" == "1" echo on
+  if "%DEBUG%" == "1" echo gcc %XFLAGS% %GFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS%
   gcc %XFLAGS% %GFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS% 2>&1
-  @if "%DEBUG%" == "1" echo off
   if not "%ERRORLEVEL%" == "0" exit /b 3
 
 :exitProgram

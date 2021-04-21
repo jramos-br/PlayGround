@@ -3,7 +3,7 @@
   // Hover to view descriptions of existing attributes.
   // For more information, visit: https://code.visualstudio.com/docs/editor/tasks
   // For information about MSYS2, visit: https://www.msys2.org
-  // For information about gcc, visit: https://gcc.gnu.org/
+  // For information about gcc, visit: https://gcc.gnu.org
   "version": "2.0.0",
   "tasks": [
     {
@@ -20,11 +20,11 @@
         "-o",
         "${input:outputDirectory}/${workspaceFolderBasename}.exe",
         "/gflags",
-        "${input:buildArgs}", // quotes added automatically when argument has spaces
+        "${input:buildArgs}",
         "/cflags",
-        "\"${input:cBuildArgs}\"",
+        "${input:cBuildArgs}",
         "/cxxflags",
-        "\"${input:cppBuildArgs}\""
+        "${input:cppBuildArgs}"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
