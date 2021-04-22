@@ -18,14 +18,6 @@
 
   rem https://gcc.gnu.org/onlinedocs/gcc/Invoking-GCC.html
 
-  set PARAMS="%*"
-  set PARAMS="%PARAMS:"=%"
-  set PARAMS=%PARAMS:  = %
-  set PARAMS=%PARAMS:  = %
-  set PARAMS=%PARAMS: =" "%
-  call :start %PARAMS%
-  exit /b %ERRORLEVEL%
-
 :start
   set DEBUG=0
   set CONSOLEAPP=
@@ -37,10 +29,9 @@
   set OBJDIR=
   set EXEDIR=
   set EXEFILE=
-  set GFLAGS=
   set CFLAGS=
   set CXXFLAGS=
-  set XFLAGS=-mwin32
+  set GCCFLAGS=-mwin32
   set LIBS=
 
   if "%DEBUG%" == "1" echo MSYS2ROOT %MSYS2ROOT%
@@ -49,126 +40,104 @@
   set PARAM=%~1
   if "%PARAM%" == "" goto displayHelp
 
+  set PREVPARAM1=
+  set PREVPARAM2=
+
 :parseLoop
   if "%DEBUG%" == "1" echo PARAM %PARAM%
 
-  if "%PARAM%" == "-o" (
+:checkPREVPARAM1
+  if "%PREVPARAM1%" == "-o" (
     set EXEFILE=%PARAM%
     goto parseNext
   )
 
-  if "%EXEFILE%" == "-o" (
-    set EXEFILE=%PARAM%
-    goto parseNext
-  )
-
-  if "%PARAM%" == "/gflags" (
-    set GFLAGS=%PARAM%
-    goto parseNext
-  )
-
-  if "%GFLAGS%" == "/gflags" (
-    set GFLAGS=%PARAM%
-    goto parseNext
-  )
-
-  if "%PARAM%" == "/cflags" (
+  if "%PREVPARAM1%" == "/cflags" (
     set CFLAGS=%PARAM%
     goto parseNext
   )
 
-  if "%CFLAGS%" == "/cflags" (
-    set CFLAGS=%PARAM%
-    goto parseNext
-  )
-
-  if "%PARAM%" == "/cxxflags" (
+  if "%PREVPARAM1%" == "/cxxflags" (
     set CXXFLAGS=%PARAM%
     goto parseNext
   )
 
-  if "%CXXFLAGS%" == "/cxxflags" (
-    set CXXFLAGS=%PARAM%
+  if "%PREVPARAM1%" == "-std" (
+    if "%PREVPARAM2%" == "/cflags" (
+      set "CFLAGS=%CFLAGS%=%PARAM%"
+      goto parseNext
+    )
+    if "%PREVPARAM2%" == "/cxxflags" (
+      set "CXXFLAGS=%CXXFLAGS%=%PARAM%"
+      goto parseNext
+    )
+    set "GCCFLAGS=%GCCFLAGS%=%PARAM%"
+    goto parseNext
+  )
+
+  if "%PARAM%" == "-o" goto parseNext
+  if "%PARAM%" == "/cflags" goto parseNext
+  if "%PARAM%" == "/cxxflags" goto parseNext
+  if "%PARAM%" == "-std" goto parseNext
+
+:checkParam
+  if /i "%PARAM%" == "/console" (
+    set GCCFLAGS=%GCCFLAGS% -mconsole
+    set CONSOLEAPP=1
+    goto parseNext
+  )
+
+  if /i "%PARAM%" == "/windows" (
+    set GCCFLAGS=%GCCFLAGS% -mwindows
+    set WINDOWSAPP=1
+    goto parseNext
+  )
+
+  if /i "%PARAM%" == "/dll" (
+    set GCCFLAGS=%GCCFLAGS% -mdll
+    set WINDOWSDLL=1
+    goto parseNext
+  )
+
+  if /i "%PARAM%" == "/x86-debug" (
+    set PLATFORM=x86
+    set CONFIG=Debug
+    goto parseNext
+  )
+
+  if /i "%PARAM%" == "/x86-release" (
+    set PLATFORM=x86
+    set CONFIG=Release
+    goto parseNext
+  )
+
+  if /i "%PARAM%" == "/x64-debug" (
+    set PLATFORM=x64
+    set CONFIG=Debug
+    goto parseNext
+  )
+
+  if /i "%PARAM%" == "/x64-release" (
+    set PLATFORM=x64
+    set CONFIG=Release
     goto parseNext
   )
 
   if /i "%PARAM%" == "-help" goto displayHelp
   if /i "%PARAM%" == "/help" goto displayHelp
 
-  if /i "%PARAM%" == "/x86-debug" goto x86Debug
-  if /i "%PARAM%" == "/x86-release" goto x86Release
-  if /i "%PARAM%" == "/x64-debug" goto x64Debug
-  if /i "%PARAM%" == "/x64-release" goto x64Release
-
-  if /i "%PARAM%" == "/console" goto consoleApp
-  if /i "%PARAM%" == "/windows" goto windowsApp
-  if /i "%PARAM%" == "/dll" goto windowsDll
-
-  set XFLAGS=%XFLAGS% %PARAM%
-  goto parseNext
-
-:displayHelp
-  echo Syntax: vsmsys2.cmd msys2_root_path options
-  echo Build configuration options (for the generated binaries)
-  echo   /X86-debug
-  echo   /X86-release
-  echo   /x64-debug
-  echo   /x64-release
-  echo Output type
-  echo   /console
-  echo   /windows
-  echo   /dll
-  echo Compiler flags
-  echo   /gflags   value (generic compiler flags)
-  echo   /cflags   value (c compiler flags)
-  echo   /cxxflags value (c++ compiler flags)
-  echo General options
-  echo   /help - prints this help message
-  echo Any other option is passed to gcc
-  exit /b 1
-
-:x86Debug
-  set PLATFORM=x86
-  set CONFIG=Debug
-  goto parseNext
-
-:x86Release
-  set PLATFORM=x86
-  set CONFIG=Release
-  goto parseNext
-
-:x64Debug
-  set PLATFORM=x64
-  set CONFIG=Debug
-  goto parseNext
-
-:x64Release
-  set PLATFORM=x64
-  set CONFIG=Release
-  goto parseNext
-
-:consoleApp
-  set XFLAGS=%XFLAGS% -mconsole
-  set CONSOLEAPP=1
-  goto parseNext
-
-:windowsApp
-  set XFLAGS=%XFLAGS% -mwindows
-  set WINDOWSAPP=1
-  goto parseNext
-
-:windowsDll
-  set XFLAGS=%XFLAGS% -mdll
-  set WINDOWSDLL=1
-  goto parseNext
+  set GCCFLAGS=%GCCFLAGS% %PARAM%
 
 :parseNext
   shift
+  set PREVPARAM2=%PREVPARAM1%
+  set PREVPARAM1=%PARAM%
   set PARAM=%~1
   if not "%PARAM%" == "" goto parseLoop
 
 :setPath
   set BINDIR=
+
   if "%PLATFORM%" == "x86" set BINDIR=%MSYS2ROOT%/mingw32/bin
   if "%PLATFORM%" == "x64" set BINDIR=%MSYS2ROOT%/mingw64/bin
 
@@ -197,20 +166,20 @@
 
 :rungcc
   set CFILES=
-  for %%f in (*.c) do (
-    set CFILES=!CFILES! %%f
+  for %%A in (*.c) do (
+    set CFILES=!CFILES! %%A
   )
 
   if "%CFILES%" == "" goto rungpp
 
-  if "%DEBUG%" == "1" echo gcc %XFLAGS% %GFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS%
-  gcc %XFLAGS% %GFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS% 2>&1
+  if "%DEBUG%" == "1" echo gcc %GCCFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS%
+  gcc %GCCFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS% 2>&1
   if not "%ERRORLEVEL%" == "0" exit /b 3
 
 :rungpp
   set CXXFILES=
-  for %%f in (*.cpp) do (
-    set CXXFILES=!CXXFILES! %%f
+  for %%A in (*.cpp) do (
+    set CXXFILES=!CXXFILES! %%A
   )
 
   if "%CXXFILES%" == "" goto exitProgram
@@ -220,8 +189,8 @@
     exit /b 3
   )
 
-  if "%DEBUG%" == "1" echo gcc %XFLAGS% %GFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS%
-  gcc %XFLAGS% %GFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS% 2>&1
+  if "%DEBUG%" == "1" echo gcc %GCCFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS%
+  gcc %GCCFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS% 2>&1
   if not "%ERRORLEVEL%" == "0" exit /b 3
 
 :exitProgram
@@ -245,3 +214,22 @@
     )
   )
   goto :eof
+
+:displayHelp
+  echo Syntax: vsmsys2.cmd msys2_root_path options
+  echo Build configuration options (for the generated binaries)
+  echo   /X86-debug
+  echo   /X86-release
+  echo   /x64-debug
+  echo   /x64-release
+  echo Output type
+  echo   /console
+  echo   /windows
+  echo   /dll
+  echo Compiler flags
+  echo   /cflags   value (c compiler flags)
+  echo   /cxxflags value (c++ compiler flags)
+  echo General options
+  echo   /help - prints this help message
+  echo Any other option is passed to gcc
+  exit /b 1

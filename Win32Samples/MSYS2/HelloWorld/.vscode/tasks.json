@@ -19,7 +19,6 @@
         "-Werror",
         "-o",
         "${input:outputDirectory}/${workspaceFolderBasename}.exe",
-        "/gflags",
         "${input:buildArgs}",
         "/cflags",
         "${input:cBuildArgs}",

@@ -36,7 +36,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_PAINT:
         hdc = BeginPaint(hwnd, &ps);
-        GetStockObject(NULL_BRUSH);
         GetClientRect(hwnd, &rect);
         DrawText(hdc, lpszWelcomeText, -1, &rect, DT_NOPREFIX | DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         EndPaint(hwnd, &ps);
