@@ -52,22 +52,12 @@
     goto parseNext
   )
 
-  if "%PREVPARAM1%" == "/cflags" (
-    set CFLAGS=%PARAM%
-    goto parseNext
-  )
-
-  if "%PREVPARAM1%" == "/cxxflags" (
-    set CXXFLAGS=%PARAM%
-    goto parseNext
-  )
-
   if "%PREVPARAM1%" == "-std" (
-    if "%PREVPARAM2%" == "/cflags" (
+    if /i "%PREVPARAM2%" == "/cflags" (
       set "CFLAGS=%CFLAGS%=%PARAM%"
       goto parseNext
     )
-    if "%PREVPARAM2%" == "/cxxflags" (
+    if /i "%PREVPARAM2%" == "/cxxflags" (
       set "CXXFLAGS=%CXXFLAGS%=%PARAM%"
       goto parseNext
     )
@@ -75,10 +65,21 @@
     goto parseNext
   )
 
+  if /i "%PREVPARAM1%" == "/cflags" (
+    set CFLAGS=%PARAM%
+    goto parseNext
+  )
+
+  if /i "%PREVPARAM1%" == "/cxxflags" (
+    set CXXFLAGS=%PARAM%
+    goto parseNext
+  )
+
   if "%PARAM%" == "-o" goto parseNext
-  if "%PARAM%" == "/cflags" goto parseNext
-  if "%PARAM%" == "/cxxflags" goto parseNext
   if "%PARAM%" == "-std" goto parseNext
+
+  if /i "%PARAM%" == "/cflags" goto parseNext
+  if /i "%PARAM%" == "/cxxflags" goto parseNext
 
 :checkParam
   if /i "%PARAM%" == "/console" (
@@ -218,8 +219,8 @@
 :displayHelp
   echo Syntax: vsmsys2.cmd msys2_root_path options
   echo Build configuration options (for the generated binaries)
-  echo   /X86-debug
-  echo   /X86-release
+  echo   /x86-debug
+  echo   /x86-release
   echo   /x64-debug
   echo   /x64-release
   echo Output type
@@ -227,8 +228,8 @@
   echo   /windows
   echo   /dll
   echo Compiler flags
-  echo   /cflags   value (c compiler flags)
-  echo   /cxxflags value (c++ compiler flags)
+  echo   /cflags   "value" (c compiler flags)
+  echo   /cxxflags "value" (c++ compiler flags)
   echo General options
   echo   /help - prints this help message
   echo Any other option is passed to gcc
