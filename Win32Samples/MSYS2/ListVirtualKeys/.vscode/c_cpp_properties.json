@@ -4,6 +4,64 @@
   // For more information, visit: https://code.visualstudio.com/docs/cpp/config-msvc
   "configurations": [
     {
+      "name": "Win32 x86 ANSI Debug",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "_DEBUG"
+      ],
+      "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
+      "compilerArgs": [
+        "-m32",
+        "-mwin32",
+        "-mconsole"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-gcc-x86",
+      "customConfigurationVariables": {
+        "msys2Root": "${SystemDrive}/msys64",
+        "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
+        "debuggerPath": "${SystemDrive}/msys64/mingw32/bin/gdb.exe",
+        "platform": "x86",
+        "configuration": "Debug",
+        "outputDirectory": "Debug",
+        "buildArgs": "-m32 -mwin32 -mconsole -O0 -g -D_DEBUG",
+        "cBuildArgs": "-std=c11",
+        "cppBuildArgs": "-std=c++14"
+      }
+    },
+    {
+      "name": "Win32 x86 ANSI Release",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "NDEBUG"
+      ],
+      "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
+      "compilerArgs": [
+        "-m32",
+        "-mwin32",
+        "-mconsole"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-gcc-x86",
+      "customConfigurationVariables": {
+        "msys2Root": "${SystemDrive}/msys64",
+        "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
+        "debuggerPath": "${SystemDrive}/msys64/mingw32/bin/gdb.exe",
+        "platform": "x86",
+        "configuration": "Release",
+        "outputDirectory": "Release",
+        "buildArgs": "-mwin32 -mconsole -O2 -DNDEBUG",
+        "cBuildArgs": "-std=c11",
+        "cppBuildArgs": "-std=c++14"
+      }
+    },
+    {
       "name": "Win32 x86 Debug",
       "includePath": [
         "${workspaceFolder}/**"

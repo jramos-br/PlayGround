@@ -132,11 +132,19 @@ int _tmain(int argc, PTCHAR argv[])
 
         if (_tcscmp(szBuffer1, szBuffer3) != 0 || _tcscmp(szBuffer2, szBuffer4) != 0)
         {
+#ifdef _UNICODE /* gcc wprintf handles %s as LPSTR */
             _tprintf(TEXT("VKC = %3u %ls %-34ls SC1 = %3u %-16ls %-16ls SC2 = %3u %-16ls %-16ls | %ls\n"),
                      uVirtualKeyCode, bExtended ? TEXT("ext") : TEXT("   "), szVirtualKeyName,
                      uScanCode1, szBuffer1, szBuffer2,
                      uScanCode2, szBuffer3, szBuffer4,
                      szBuffer5);
+#else
+            _tprintf(TEXT("VKC = %3u %s %-34s SC1 = %3u %-16s %-16s SC2 = %3u %-16s %-16s | %s\n"),
+                     uVirtualKeyCode, bExtended ? TEXT("ext") : TEXT("   "), szVirtualKeyName,
+                     uScanCode1, szBuffer1, szBuffer2,
+                     uScanCode2, szBuffer3, szBuffer4,
+                     szBuffer5);
+#endif
         }
     }
 
