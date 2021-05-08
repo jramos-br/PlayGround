@@ -13,10 +13,8 @@
       "args": [
         "${input:msys2Root}",
         "/${input:platform}-${input:configuration}",
-        "/windows",
         "-Wall",
         "-Wextra",
-        "-Werror",
         "-o",
         "${input:outputDirectory}/${workspaceFolderBasename}.exe",
         "${input:buildArgs}",

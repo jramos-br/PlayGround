@@ -11,6 +11,6 @@ Build it using VS Code and MSYS2 gcc toolchain.
 * Navigate to HelloWorld directory.
 * Open VS Code (code .)
 * Open the HelloWorld.c file.
-* Select a C/C++ build configuration.
+* Select a C/C++ debug build configuration.
 * Build the code (Ctrl+Shift+B).
 * Debug the code (F5).

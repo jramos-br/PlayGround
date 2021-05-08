@@ -20,9 +20,6 @@
 
 :start
   set DEBUG=0
-  set CONSOLEAPP=
-  set WINDOWSAPP=
-  set WINDOWSDLL=
   set MSYS2ROOT=%~1
   set PLATFORM=x86
   set CONFIG=Debug
@@ -31,7 +28,7 @@
   set EXEFILE=
   set CFLAGS=
   set CXXFLAGS=
-  set GCCFLAGS=-mwin32
+  set GCCFLAGS=
   set LIBS=
 
   if "%DEBUG%" == "1" echo MSYS2ROOT %MSYS2ROOT%
@@ -66,12 +63,12 @@
   )
 
   if /i "%PREVPARAM1%" == "/cflags" (
-    set CFLAGS=%PARAM%
+    set "CFLAGS= %PARAM%"
     goto parseNext
   )
 
   if /i "%PREVPARAM1%" == "/cxxflags" (
-    set CXXFLAGS=%PARAM%
+    set "CXXFLAGS= %PARAM%""
     goto parseNext
   )
 
@@ -82,24 +79,6 @@
   if /i "%PARAM%" == "/cxxflags" goto parseNext
 
 :checkParam
-  if /i "%PARAM%" == "/console" (
-    set GCCFLAGS=%GCCFLAGS% -mconsole
-    set CONSOLEAPP=1
-    goto parseNext
-  )
-
-  if /i "%PARAM%" == "/windows" (
-    set GCCFLAGS=%GCCFLAGS% -mwindows
-    set WINDOWSAPP=1
-    goto parseNext
-  )
-
-  if /i "%PARAM%" == "/dll" (
-    set GCCFLAGS=%GCCFLAGS% -mdll
-    set WINDOWSDLL=1
-    goto parseNext
-  )
-
   if /i "%PARAM%" == "/x86-debug" (
     set PLATFORM=x86
     set CONFIG=Debug
@@ -127,7 +106,7 @@
   if /i "%PARAM%" == "-help" goto displayHelp
   if /i "%PARAM%" == "/help" goto displayHelp
 
-  set GCCFLAGS=%GCCFLAGS% %PARAM%
+  set "GCCFLAGS=%GCCFLAGS% %PARAM%"
 
 :parseNext
   shift
@@ -173,8 +152,8 @@
 
   if "%CFILES%" == "" goto rungpp
 
-  if "%DEBUG%" == "1" echo gcc %GCCFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS%
-  gcc %GCCFLAGS% %CFLAGS% -o %EXEFILE%%CFILES% %LIBS% 2>&1
+  if "%DEBUG%" == "1" echo gcc%GCCFLAGS%%CFLAGS% -o %EXEFILE%%CFILES%%LIBS%
+  gcc%GCCFLAGS%%CFLAGS% -o %EXEFILE%%CFILES%%LIBS% 2>&1
   if not "%ERRORLEVEL%" == "0" exit /b 3
 
 :rungpp
@@ -190,8 +169,8 @@
     exit /b 3
   )
 
-  if "%DEBUG%" == "1" echo gcc %GCCFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS%
-  gcc %GCCFLAGS% %CXXFLAGS% -o %EXEFILE%%CXXFILES% %LIBS% 2>&1
+  if "%DEBUG%" == "1" echo gcc%GCCFLAGS%%CXXFLAGS% -o %EXEFILE%%CXXFILES%%LIBS%
+  gcc%GCCFLAGS%%CXXFLAGS% -o %EXEFILE%%CXXFILES%%LIBS% 2>&1
   if not "%ERRORLEVEL%" == "0" exit /b 3
 
 :exitProgram
@@ -223,10 +202,6 @@
   echo   /x86-release
   echo   /x64-debug
   echo   /x64-release
-  echo Output type
-  echo   /console
-  echo   /windows
-  echo   /dll
   echo Compiler flags
   echo   /cflags   "value" (c compiler flags)
   echo   /cxxflags "value" (c++ compiler flags)
