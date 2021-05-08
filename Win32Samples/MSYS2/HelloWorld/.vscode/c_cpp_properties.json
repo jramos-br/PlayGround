@@ -13,9 +13,8 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
-        "-mconsole"
+        "-mwindows"
       ],
       "cStandard": "c11",
       "cppStandard": "c++14",
@@ -27,7 +26,7 @@
         "platform": "x86",
         "configuration": "Debug",
         "outputDirectory": "Debug",
-        "buildArgs": "-m32 -mwin32 -mconsole -O0 -g -D_DEBUG",
+        "buildArgs": "-mwin32 -mwindows -O0 -g -D_DEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
@@ -42,9 +41,8 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
-        "-mconsole"
+        "-mwindows"
       ],
       "cStandard": "c11",
       "cppStandard": "c++14",
@@ -56,7 +54,7 @@
         "platform": "x86",
         "configuration": "Release",
         "outputDirectory": "Release",
-        "buildArgs": "-mwin32 -mconsole -O2 -DNDEBUG",
+        "buildArgs": "-mwin32 -mwindows -O2 -DNDEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
@@ -72,10 +70,9 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
         "-municode",
-        "-mconsole"
+        "-mwindows"
       ],
       "cStandard": "c11",
       "cppStandard": "c++14",
@@ -87,7 +84,7 @@
         "platform": "x86",
         "configuration": "Debug",
         "outputDirectory": "Debug",
-        "buildArgs": "-m32 -mwin32 -municode -mconsole -O0 -g -D_UNICODE -D_DEBUG",
+        "buildArgs": "-mwin32 -municode -mwindows -O0 -g -D_UNICODE -D_DEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
@@ -103,10 +100,9 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
         "-municode",
-        "-mconsole"
+        "-mwindows"
       ],
       "cStandard": "c11",
       "cppStandard": "c++14",
@@ -118,7 +114,7 @@
         "platform": "x86",
         "configuration": "Release",
         "outputDirectory": "Release",
-        "buildArgs": "-mwin32 -municode -mconsole -O2 -D_UNICODE -DNDEBUG",
+        "buildArgs": "-mwin32 -municode -mwindows -O2 -D_UNICODE -DNDEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
@@ -136,7 +132,7 @@
       "compilerArgs": [
         "-mwin32",
         "-municode",
-        "-mconsole"
+        "-mwindows"
       ],
       "cStandard": "c11",
       "cppStandard": "c++14",
@@ -148,7 +144,7 @@
         "platform": "x64",
         "configuration": "Debug",
         "outputDirectory": "x64/Debug",
-        "buildArgs": "-mwin32 -municode -mconsole -O0 -g -D_UNICODE -D_DEBUG",
+        "buildArgs": "-mwin32 -municode -mwindows -O0 -g -D_UNICODE -D_DEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
@@ -166,7 +162,7 @@
       "compilerArgs": [
         "-mwin32",
         "-municode",
-        "-mconsole"
+        "-mwindows"
       ],
       "cStandard": "c11",
       "cppStandard": "c++14",
@@ -178,7 +174,7 @@
         "platform": "x64",
         "configuration": "Release",
         "outputDirectory": "x64/Release",
-        "buildArgs": "-mwin32 -municode -mconsole -O2 -D_UNICODE -DNDEBUG",
+        "buildArgs": "-mwin32 -municode -mwindows -O2 -D_UNICODE -DNDEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
