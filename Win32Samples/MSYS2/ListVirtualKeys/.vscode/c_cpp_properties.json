@@ -13,7 +13,6 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
         "-mconsole"
       ],
@@ -27,7 +26,7 @@
         "platform": "x86",
         "configuration": "Debug",
         "outputDirectory": "Debug",
-        "buildArgs": "-m32 -mwin32 -mconsole -O0 -g -D_DEBUG",
+        "buildArgs": "-mwin32 -mconsole -O0 -g -D_DEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
@@ -42,7 +41,6 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
         "-mconsole"
       ],
@@ -72,7 +70,6 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
         "-municode",
         "-mconsole"
@@ -87,7 +84,7 @@
         "platform": "x86",
         "configuration": "Debug",
         "outputDirectory": "Debug",
-        "buildArgs": "-m32 -mwin32 -municode -mconsole -O0 -g -D_UNICODE -D_DEBUG",
+        "buildArgs": "-mwin32 -municode -mconsole -O0 -g -D_UNICODE -D_DEBUG",
         "cBuildArgs": "-std=c11",
         "cppBuildArgs": "-std=c++14"
       }
@@ -103,7 +100,6 @@
       ],
       "compilerPath": "${SystemDrive}/msys64/mingw32/bin/gcc.exe",
       "compilerArgs": [
-        "-m32",
         "-mwin32",
         "-municode",
         "-mconsole"
