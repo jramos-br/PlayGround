@@ -1,0 +1,302 @@
+﻿@{
+    ViewBag.Title = "Constituição de Fundos - Gestor";
+}
+
+
+<main class="pt-3">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <form action="" method="post">
+                    <div class="row pt-3">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="1-perfil-taxa-adm" class="col-12">1 - Perfil da taxa de Administração: <span class="text-danger">*</span></label>
+                                <select id="1-perfil-taxa-adm" required="required" class="custom-select form-control form-control-sm col-sm-6 col-md-6 col-12" name="">
+                                    <option value="Fixa">Fixa</option>
+                                    <option value="escalonada/cascata">Escalonada /Cascata</option>
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <label for="2-tipo-cobranca" class="col-12">2 - Tipo de Cobrança:</label>
+                                <select id="2-tipo-cobranca" class="custom-select form-control form-control-sm col-sm-6 col-md-6 col-12" name="" readonly>
+                                    <option>Margem</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="3-perfil-taxa-adm" class="col-12">3 - Percentual da taxa de Administração:</label>
+                                <div class="col-3">
+                                    <select id="3-perfil-taxa-adm" class="custom-select form-control form-control-sm">
+                                        <option value="%">%</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <input id="3-perfil-taxa-adm-value" type="number" step=".0001" pattern="^\d*(\.\d{0,4})?$" class="form-control" name="3-perfil-taxa-adm-value" placeholder="0,0000">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-md-3 col-12">
+                            <div class="form-group row">
+                                <label for="4-remuneracao-mensal-minima" class="col-12">4 - Remuneração mensal mínima:<span class="text-danger">*</span> </label>
+                                <input id="4-remuneracao-mensal-minima" type="number" step=".0001" pattern="^\d*(\.\d{0,4})?$" class="form-control col-12" name="" placeholder="0,0000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-check row">
+                                <input id="5-previsao-taxa-adm-maxima" class="form-check-input " type="checkbox" name="" value="true">
+                                <label for="5-previsao-taxa-adm-maxima" class="form-check-label">5 - Terá previsão de Taxa de Administração Máxima</label>
+                            </div>
+                            <div class="form-group row">
+                                <label for="6-taxa-adm-maxima">6 - Taxa de Administração Máxima <br />(Obrigatório apenas para investidores em Geral)</label>
+                                <input id="6-taxa-adm-maxima" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-3 col-md-3 col-12" name="" placeholder="% 0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="7-periodicidade-cobranca" class="col-12">7 - Periodicidade da Cobrança</label>
+                                <select id="7-periodicidade-cobranca" class="custom-select form-control form-control-sm col-sm-9 col-md-9 col-12" name="">
+                                    <option>Mensal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group">
+                                <label for="8-informacoes-adicionais">8 - Informações Adicionais</label>
+                                <textarea id="8-informacoes-adicionais" class="form-control" name="" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- acrescentados apos -->
+                    <span class="text-white bg-warning p-2">Falta validar e ver print</span>
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="cobra-taxa-performace" class="col-12">Cobra taxa de performance?</label>
+                                <select id="cobra-taxa-performace" class="custom-select form-control form-control-sm col-sm-9 col-md-9 col-12" name="cobra-taxa-performace">
+                                    <option>SIM</option>
+                                    <option>NÃO</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="taxa-performace" class="col-12">Taxa de performamce</label>
+                                <input id="taxa-performa" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" min="0" class="form-control col-sm-6 col-md-6 col-12" name="">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="taxa-performace-valor-ultrapassado" class="col-12">Taxa de performamce (valor a ser ultrapassado)</label>
+                                <input id="taxa-performace-valor-ultrapassado" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" min="0" class="form-control col-sm-6 col-md-6 col-12" name="">
+                            </div>
+                        </div>
+                    </div>
+                    <span class="text-white bg-warning p-2">------</span>
+
+                    <!-- fim acrescentados apos -->
+
+
+                    <div class="row bg-dark">
+                        <div class="col">
+                            <h3 class="text-center text-white">
+                                Movimentação
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <label for="" class="row pt-3">15 - Estabelece valores mínimos <br />para movimentação?</label>
+                            <div class="form-check form-check-inline row">
+                                <input id="15-estabelece-valores-min-mov-sim" class="form-check-input" type="radio" name="15-estabelece-valores-min-mov" value="sim">
+                                <label for="15-estabelece-valores-min-mov-sim" class="form-check-label pr-4">Sim</label>
+                                <input id="15-estabelece-valores-min-mov-nao" class="form-check-input" type="radio" name="15-estabelece-valores-min-mov" value="nao">
+                                <label for="15-estabelece-valores-min-mov-nao" class="form-check-label">Não</label>
+                            </div>
+                            <div class="form-group pt-3 row">
+                                <label for="16-aplicacao-inicial-minima">16 - Aplicação Inicial Mínima</label>
+                                <input id="16-aplicacao-inicial-minima" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="17-aplicacao-inicial" class="col-12">17 - Aplicação Inicial</label>
+                                <input id="17-aplicacao-inicial" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <label for="" class="row pt-3">18 - Possui aplicação máxima inicial?</label>
+                            <div class="form-check form-check-inline row">
+                                <input id="18-possui-aplicacao-maxima-inicial-sim" class="form-check-input" type="radio" name="18-possui-aplicacao-maxima-inicial" value="sim">
+                                <label for="18-possui-aplicacao-maxima-inicial-sim" class="form-check-label pr-4">Sim</label>
+                                <input id="18-possui-aplicacao-maxima-inicial-nao" class="form-check-input" type="radio" name="18-possui-aplicacao-maxima-inicial" value="nao">
+                                <label for="18-possui-aplicacao-maxima-inicial-nao" class="form-check-label">Não</label>
+                            </div>
+                            <div class="form-group pt-3 row">
+                                <label for="19-aplicacao-maxima-inicial" class="col-12">19 - Aplicação máxima inicial</label>
+                                <input id="19-aplicacao-maxima-inicial" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-2">
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="20-percentual-min-resgate" class="col-12">20 - Percentual mínimo para resgate</label>
+                                <input id="20-percentual-min-resgate" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="21-saldo-minimo-permanencia" class="col-12">21 - Saldo mínimo de permanência</label>
+                                <input id="21-saldo-minimo-permanencia" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group row">
+                                <label for="22-percentual-maximo-cotas" class="col-12">22 - Percentual máxima de cotas que pode ser <br />detido por um único cotista</label>
+                                <input id="22-percentual-maximo-cotas" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row bg-dark">
+                        <div class="col">
+                            <h3 class="text-center text-white">
+                                Movimentação - Conta e Ordem
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <label for="" class="row pt-3">23 - Estabelece valores mínimos para <br />movimentação para cotistas por Conta e Ordem?</label>
+                            <div class="form-check form-check-inline row">
+                                <input id="23-estabelece-valores-min-conta-ordem" class="form-check-input" type="radio" name="23-estabelece-valores-min-conta-ordem" value="sim">
+                                <label for="23-estabelece-valores-min-conta-ordem" class="form-check-label pr-4">Sim</label>
+                                <input id="23-estabelece-valores-min-conta-ordem" class="form-check-input" type="radio" name="23-estabelece-valores-min-conta-ordem" value="nao">
+                                <label for="23-estabelece-valores-min-conta-ordem" class="form-check-label">Não</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="24-aplicacao-inicial-minima">24 - Aplicação Inicial Mínima</label>
+                                <input id="24-taxa-adm-maxima" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="25-aplicacao-min" class="col-12">25 - Aplicação mínima</label>
+                                <input id="25-aplicacao-min" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-2">
+
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="26-valor-min-resgates" class="col-12">26 - Valor mínimo para resgates</label>
+                                <input id="26-valor-min-resgates" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="27-saldo-minimo-permanencia" class="col-12">27 - Saldo mínimo de permanência</label>
+                                <input id="27-saldo-minimo-permanencia" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12"></div>
+                    </div>
+
+                    <div class="row bg-dark">
+                        <div class="col">
+                            <h3 class="text-center text-white">
+                                Movimentação - Sócios e Funcionários da Gestora
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <label for="" class="row pt-3">28 - Estabelece valores mínimos para <br />movimentação para cotistas por Conta e Ordem?</label>
+                            <div class="form-check form-check-inline row">
+                                <input id="28-estabelece-valores-min-conta-ordem" class="form-check-input" type="radio" name="28-estabelece-valores-min-conta-ordem" value="sim">
+                                <label for="28-estabelece-valores-min-conta-ordem" class="form-check-label pr-4">Sim</label>
+                                <input id="28-estabelece-valores-min-conta-ordem" class="form-check-input" type="radio" name="28-estabelece-valores-min-conta-ordem" value="nao">
+                                <label for="28-estabelece-valores-min-conta-ordem" class="form-check-label">Não</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="29-aplicacao-inicial-minima">29 - Aplicação Inicial Mínima</label>
+                                <input id="29-taxa-adm-maxima" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="30-aplicacao-min" class="col-12">30 - Aplicação mínima</label>
+                                <input id="30-aplicacao-min" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-2">
+
+                    <div class="row">
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="31-valor-min-resgates" class="col-12">31 - Valor mínimo para resgates</label>
+                                <input id="31-valor-min-resgates" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12">
+                            <div class="form-group pt-3 row">
+                                <label for="32-saldo-minimo-permanencia" class="col-12">32 - Saldo mínimo de permanência</label>
+                                <input id="32-saldo-minimo-permanencia" type="number" step=".01" pattern="^\d*(\.\d{0,2})?$" class="form-control col-sm-6 col-md-6 col-12" name="" placeholder="0,00" readonly>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-4 col-12"></div>
+                    </div>
+
+                    <div class="row pt-3">
+                        <div class="col-12">
+                            <h4><strong>Informações do Gestor</strong></h4>
+                        </div>
+                        <div class="form-group col-sm-3 col-md-3 col-12">
+                            <label for="rm_contato-gestora">Contato na Gestora (Nome):</label>
+                            <input id="rm_contato-gestora" class="form-control" type="text" name="rm_contato-gestora" placeholder="Nome">
+                        </div>
+                        <div class="form-group col-sm-3 col-md-3 col-12">
+                            <label for="rm_telefone-gestor">Telefone:</label>
+                            <input id="rm_telefone-gestor" class="form-control" type="text" name="rm_telefone-gestor" placeholder="Telefone">
+                        </div>
+                        <div class="form-group col-sm-3 col-md-3 col-12">
+                            <label for="rm_email-gestor">E-mail do Gestor:</label>
+                            <input id="rm_email-gestor" class="form-control" type="email" name="rm_email-gestor" placeholder="E-mail">
+                        </div>
+                        <div class="form-group col-sm-3 col-md-3 col-12">
+                            <label for="rm_email-gestor">Site do Gestor:</label>
+                            <input id="rm_site-gestor" class="form-control" type="text" name="rm_site-gestor" placeholder="http://">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col d-flex justify-content-end">
+                            <button class="b-4 btn btn-primary">Enviar</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</main>

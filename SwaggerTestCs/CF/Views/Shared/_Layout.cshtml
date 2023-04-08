@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>@ViewBag.Title - BNY Mellon</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body class="bg-light p-4">
+
+    <head class="container">
+        <div class="row bg-dark">
+            <div class="col">
+                <h3 class="text-center text-white">@ViewBag.Title</h3>
+            </div>
+        </div>
+    </head>
+
+
+    @RenderBody()
+    <hr />
+    <footer class="container-fluid">
+        <div class="row">
+            <p class="col text-center">BNY Mellon&nbsp;&copy; @DateTime.Now.Year | <small>Desenvolvido por <a href="http://www.itshare.com.br" target="_blank">ITShare</a> </small></p>
+        </div>
+    </footer>
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")
+@RenderSection("scripts", required: false)
+
+</body>
+<script type="module">
+    import {campoBase,
+      condicionalCampo,
+      requiredReadonly,
+      token,
+      GetSpringCM,
+      PostSpringCM,
+      captureInfo
+    } from '/Scripts/functions.js';
+
+    captureInfo();
+
+    
+
+    requiredReadonly([
+    {
+      'elementEvent': '1-perfil-taxa-adm',
+      'elementCondicionado': [
+      {
+        'ID':'3-perfil-taxa-adm',
+        'valueCompare': 'Fixa',
+      },
+      {
+        'ID':'3-perfil-taxa-adm-value',
+        'valueCompare': 'Fixa',
+      },
+      {
+        'ID':'4-remuneracao-mensal-minima',
+        'valueCompare': 'Fixa',
+      },
+      {
+        'ID':'2-tipo-cobranca',
+        'valueCompare': 'escalonada/cascata',
+      }
+
+      ],
+      'required': true,
+      'readonly': true,
+    },
+    {
+      'elementEvent': '5-previsao-taxa-adm-maxima',
+      'elementCondicionado': [
+      {
+        'ID':'6-taxa-adm-maxima',
+        'valueCompare': true,
+      }
+      ],
+      'required': true,
+      'readonly': true,
+    }
+    ]);
+ 
+    /*
+    **Script Movimentação
+    */
+
+    requiredReadonly([{
+        'elementEvent': '15-estabelece-valores-min-mov-sim',
+        'elementCondicionado': [
+            {
+                'ID':'16-aplicacao-inicial-minima',
+                'valueCompare': true,
+            },
+            {
+                'ID':'17-aplicacao-inicial',
+                'valueCompare': true,
+            }
+        ],
+        'required': true,
+        'readonly': true,
+    },
+    {
+        'elementEvent': '15-estabelece-valores-min-mov-nao',
+        'elementCondicionado': [
+            {
+                'ID':'16-aplicacao-inicial-minima',
+                'valueCompare': false,
+            },
+            {
+                'ID':'17-aplicacao-inicial',
+                'valueCompare': false,
+            }
+        ],
+        'required': true,
+        'readonly': true,
+    },
+    {
+        'elementEvent': '18-possui-aplicacao-maxima-inicial-sim',
+        'elementCondicionado': [{
+            'ID':'19-aplicacao-maxima-inicial',
+            'valueCompare': true,
+        }],
+        'required': true,
+        'readonly': true,
+    },
+    {
+        'elementEvent': '18-possui-aplicacao-maxima-inicial-nao',
+        'elementCondicionado': [{
+            'ID':'19-aplicacao-maxima-inicial',
+            'valueCompare': false,
+        }],
+        'required': true,
+        'readonly': true,
+    }
+]);
+
+</script>
+</html>

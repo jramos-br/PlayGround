@@ -1,0 +1,18 @@
+// ATLProject2.idl : IDL source for ATLProject2
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ATLProject2.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(b3a5f633-ad7a-45fe-8a7c-d59181f7a164),
+	version(1.0),
+]
+library ATLProject2Lib
+{
+	importlib("stdole2.tlb");
+};
+
