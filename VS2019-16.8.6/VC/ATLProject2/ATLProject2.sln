@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATLProject2", "ATLProject2\ATLProject2.vcxproj", "{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATLProject2PS", "ATLProject2PS\ATLProject2PS.vcxproj", "{1BCE0F01-D29F-4788-A1BB-7317CB602FC9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF} = {D51DE63D-B625-410E-B6F2-0B0246EEF5FF}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Debug|x64.ActiveCfg = Debug|x64
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Debug|x64.Build.0 = Debug|x64
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Debug|x86.ActiveCfg = Debug|Win32
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Debug|x86.Build.0 = Debug|Win32
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Release|x64.ActiveCfg = Release|x64
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Release|x64.Build.0 = Release|x64
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Release|x86.ActiveCfg = Release|Win32
+		{D51DE63D-B625-410E-B6F2-0B0246EEF5FF}.Release|x86.Build.0 = Release|Win32
+		{1BCE0F01-D29F-4788-A1BB-7317CB602FC9}.Debug|x64.ActiveCfg = Debug|x64
+		{1BCE0F01-D29F-4788-A1BB-7317CB602FC9}.Debug|x86.ActiveCfg = Debug|Win32
+		{1BCE0F01-D29F-4788-A1BB-7317CB602FC9}.Release|x64.ActiveCfg = Release|x64
+		{1BCE0F01-D29F-4788-A1BB-7317CB602FC9}.Release|x86.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {747AFB10-9524-4F19-A2BF-31851BCA1AEE}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATLProject1", "ATLProject1\ATLProject1.vcxproj", "{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATLProject1PS", "ATLProject1PS\ATLProject1PS.vcxproj", "{8D905C9F-5C64-4EFB-A158-297540BBB786}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683} = {7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Debug|x64.ActiveCfg = Debug|x64
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Debug|x64.Build.0 = Debug|x64
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Debug|x86.ActiveCfg = Debug|Win32
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Debug|x86.Build.0 = Debug|Win32
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Release|x64.ActiveCfg = Release|x64
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Release|x64.Build.0 = Release|x64
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Release|x86.ActiveCfg = Release|Win32
+		{7AB9DE5A-9AB7-435F-A431-71EE4DDBB683}.Release|x86.Build.0 = Release|Win32
+		{8D905C9F-5C64-4EFB-A158-297540BBB786}.Debug|x64.ActiveCfg = Debug|x64
+		{8D905C9F-5C64-4EFB-A158-297540BBB786}.Debug|x86.ActiveCfg = Debug|Win32
+		{8D905C9F-5C64-4EFB-A158-297540BBB786}.Release|x64.ActiveCfg = Release|x64
+		{8D905C9F-5C64-4EFB-A158-297540BBB786}.Release|x86.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {748D6182-6A16-470F-8F9B-9A35CCAA0586}
+	EndGlobalSection
+EndGlobal

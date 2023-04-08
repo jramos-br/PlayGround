@@ -1,0 +1,51 @@
+// MFCActiveXControl1.idl : type library source for ActiveX Control project.
+
+// This file will be processed by the MIDL compiler tool to
+// produce the type library (MFCActiveXControl1.tlb) that will become a resource in
+// MFCActiveXControl1.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(2b71f7b8-862f-4612-a547-4879586b9680), version(1.0),
+  control ]
+library MFCActiveXControl1Lib
+{
+	importlib(STDOLE_TLB);
+
+	//  Primary dispatch interface for CMFCActiveXControl1Ctrl
+	[ 
+		uuid(ad9e0bda-8bd4-4043-9eb0-dbbd77df8f1b)
+	]
+	dispinterface _DMFCActiveXControl1
+	{
+		properties:
+		methods:
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+	};
+
+	//  Event dispatch interface for CMFCActiveXControl1Ctrl
+
+	[ 
+		uuid(e4516146-5f67-4034-914a-7b92394c8e33)
+	]
+	dispinterface _DMFCActiveXControl1Events
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+	};
+
+	//  Class information for CMFCActiveXControl1Ctrl
+	[
+		uuid(c82f2ffd-630e-4622-8086-a38f5c7819f5)
+	]
+	coclass MFCActiveXControl1
+	{
+		[default] dispinterface _DMFCActiveXControl1;
+		[default, source] dispinterface _DMFCActiveXControl1Events;
+	};
+
+};
