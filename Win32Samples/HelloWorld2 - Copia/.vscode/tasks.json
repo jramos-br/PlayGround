@@ -1,0 +1,72 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://code.visualstudio.com/docs/editor/tasks
+  // For information about cl.exe, visit: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-command-line-syntax
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe Build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/${input:platform}-${input:configuration}",
+        "/sdl",
+        "/W4",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/Fo${input:outputDirectory}/",
+        "/Fd${input:outputDirectory}/${workspaceFolderBasename}.pdb",
+        "/Fe${input:outputDirectory}/${workspaceFolderBasename}.exe",
+        "${input:buildArgs}",
+        "*.c*",
+        "/link",
+        "/incremental:no",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        {
+          "base": "$msCompile",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "compiler: cl.exe"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "platform",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "platform"
+    },
+    {
+      "id": "configuration",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "configuration"
+    },
+    {
+      "id": "outputDirectory",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "outputDirectory"
+    },
+    {
+      "id": "buildArgs",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "buildArgs"
+    }
+  ]
+}

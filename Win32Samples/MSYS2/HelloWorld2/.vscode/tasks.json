@@ -1,0 +1,89 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://code.visualstudio.com/docs/editor/tasks
+  // For information about MSYS2, visit: https://www.msys2.org
+  // For information about gcc, visit: https://gcc.gnu.org
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "C/C++: MSYS2 gcc Build",
+      "command": ".vscode\\vsmsys2.cmd",
+      "args": [
+        "${input:msys2Root}",
+        "/${input:platform}-${input:configuration}",
+        "-Wall",
+        "-Wextra",
+        "-o",
+        "${input:outputDirectory}/${workspaceFolderBasename}.exe",
+        "${input:buildArgs}",
+        "/cflags",
+        "${input:cBuildArgs}",
+        "/cxxflags",
+        "${input:cppBuildArgs}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        {
+          "base": "$gcc",
+          "fileLocation": [
+            "relative",
+            "${workspaceFolder}"
+          ]
+        }
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "compiler: MSYS2 gcc"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "msys2Root",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "msys2Root"
+    },
+    {
+      "id": "platform",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "platform"
+    },
+    {
+      "id": "configuration",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "configuration"
+    },
+    {
+      "id": "outputDirectory",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "outputDirectory"
+    },
+    {
+      "id": "buildArgs",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "buildArgs"
+    },
+    {
+      "id": "cBuildArgs",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "cBuildArgs"
+    },
+    {
+      "id": "cppBuildArgs",
+      "type": "command",
+      "command": "cpptools.activeConfigCustomVariable",
+      "args": "cppBuildArgs"
+    }
+  ]
+}

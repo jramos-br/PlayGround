@@ -1,0 +1,168 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://code.visualstudio.com/docs/cpp/config-msvc
+  "configurations": [
+    {
+      "name": "Win32 x86 Debug",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-x86",
+      "customConfigurationVariables": {
+        "platform": "Win32",
+        "configuration": "Debug",
+        "outputDirectory": "Debug",
+        "buildArgs": "/RTC1 /Od /Oy- /MDd /D_DEBUG /DUNICODE /D_UNICODE"
+      }
+    },
+    {
+      "name": "Win32 x86 Release",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-x86",
+      "customConfigurationVariables": {
+        "platform": "Win32",
+        "configuration": "Release",
+        "outputDirectory": "Release",
+        "buildArgs": "/O2 /Oy- /Oi /MD /DNDEBUG /DUNICODE /D_UNICODE"
+      }
+    },
+    {
+      "name": "Win32 x64 Debug",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-x64",
+      "customConfigurationVariables": {
+        "platform": "x64",
+        "configuration": "Debug",
+        "outputDirectory": "x64/Debug",
+        "buildArgs": "/RTC1 /Od /Oy- /MDd /D_DEBUG /DUNICODE /D_UNICODE"
+      }
+    },
+    {
+      "name": "Win32 x64 Release",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-x64",
+      "customConfigurationVariables": {
+        "platform": "x64",
+        "configuration": "Release",
+        "outputDirectory": "x64/Release",
+        "buildArgs": "/O2 /Oy- /Oi /MD /DNDEBUG /DUNICODE /D_UNICODE"
+      }
+    },
+    {
+      "name": "Win32 ARM Debug",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-arm",
+      "customConfigurationVariables": {
+        "platform": "ARM",
+        "configuration": "Debug",
+        "outputDirectory": "ARM/Debug",
+        "buildArgs": "/RTC1 /Od /Oy- /MDd /D_DEBUG /DUNICODE /D_UNICODE"
+      }
+    },
+    {
+      "name": "Win32 ARM Release",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-arm",
+      "customConfigurationVariables": {
+        "platform": "ARM",
+        "configuration": "Release",
+        "outputDirectory": "ARM/Release",
+        "buildArgs": "/O2 /Oy- /Oi /MD /DNDEBUG /DUNICODE /D_UNICODE"
+      }
+    },
+    {
+      "name": "Win32 ARM64 Debug",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-arm64",
+      "customConfigurationVariables": {
+        "platform": "ARM64",
+        "configuration": "Debug",
+        "outputDirectory": "ARM64/Debug",
+        "buildArgs": "/RTC1 /Od /Oy- /MDd /D_DEBUG /DUNICODE /D_UNICODE"
+      }
+    },
+    {
+      "name": "Win32 ARM64 Release",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "defines": [
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "windows-msvc-arm64",
+      "customConfigurationVariables": {
+        "platform": "ARM64",
+        "configuration": "Release",
+        "outputDirectory": "ARM64/Release",
+        "buildArgs": "/O2 /Oy- /Oi /MD /DNDEBUG /DUNICODE /D_UNICODE"
+      }
+    }
+  ],
+  "version": 4
+}
