@@ -1,0 +1,2 @@
+java -jar C:\Util\swagger-codegen-cli.jar generate -l csharp -i Folders.json -o Folders
+java -jar C:\Util\swagger-codegen-cli.jar generate -l csharp -i http://petstore.swagger.io/v2/swagger.json -o PetStore
