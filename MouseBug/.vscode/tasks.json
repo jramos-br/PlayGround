@@ -1,0 +1,160 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe x86 debug build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/x86",
+        "/nologo",
+        "/RTC1",
+        "/Od",
+        "/Oy-",
+        "/MDd",
+        "/D",
+        "WIN32",
+        "/D",
+        "_DEBUG",
+        "/D",
+        "_UNICODE",
+        "/D",
+        "UNICODE",
+        "/W3",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/Fd${workspaceFolderBasename}.pdb",
+        "/Fe${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$msCompile"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "compiler: cl.exe"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe x86 release build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/x86",
+        "/nologo",
+        "/O2",
+        "/Oy-",
+        "/Oi",
+        "/MD",
+        "/D",
+        "WIN32",
+        "/D",
+        "NDEBUG",
+        "/D",
+        "_UNICODE",
+        "/D",
+        "UNICODE",
+        "/W3",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/Fd${workspaceFolderBasename}.pdb",
+        "/Fe${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$msCompile"
+      ],
+      "group": "build",
+      "detail": "compiler: cl.exe"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe x64 debug build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/amd64",
+        "/nologo",
+        "/RTC1",
+        "/Od",
+        "/Oy-",
+        "/MDd",
+        "/D",
+        "WIN32",
+        "/D",
+        "_DEBUG",
+        "/D",
+        "_UNICODE",
+        "/D",
+        "UNICODE",
+        "/W3",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/Fd${workspaceFolderBasename}.pdb",
+        "/Fe${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$msCompile"
+      ],
+      "group": "build",
+      "detail": "compiler: cl.exe"
+    },
+    {
+      "type": "cppbuild",
+      "label": "C/C++: cl.exe x64 release build",
+      "command": "vsruncl.bat",
+      "args": [
+        "/amd64",
+        "/nologo",
+        "/O2",
+        "/Oy-",
+        "/Oi",
+        "/MD",
+        "/D",
+        "WIN32",
+        "/D",
+        "NDEBUG",
+        "/D",
+        "_UNICODE",
+        "/D",
+        "UNICODE",
+        "/W3",
+        "/Zc:inline",
+        "/Zi",
+        "/EHsc",
+        "/Fd${workspaceFolderBasename}.pdb",
+        "/Fe${workspaceFolderBasename}.exe",
+        "*.c*",
+        "/link",
+        "/incremental:no"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$msCompile"
+      ],
+      "group": "build",
+      "detail": "compiler: cl.exe"
+    },
+  ]
+}
