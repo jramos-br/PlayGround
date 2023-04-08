@@ -21,9 +21,27 @@
     <ClCompile Include="shannon_entropy.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="string_stats_test.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bugcheck.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="random_test.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shannon_entropy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="string_stats_test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bugcheck.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="random_test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

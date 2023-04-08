@@ -143,11 +143,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bugcheck.c" />
+    <ClCompile Include="random_test.c" />
     <ClCompile Include="ShannonEntropy.c" />
     <ClCompile Include="shannon_entropy.c" />
+    <ClCompile Include="string_stats_test.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bugcheck.h" />
+    <ClInclude Include="random_test.h" />
     <ClInclude Include="shannon_entropy.h" />
+    <ClInclude Include="string_stats_test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

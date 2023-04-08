@@ -22,22 +22,30 @@
 #pragma once
 #endif
 
-double specific_entropy_nats(const char* s);
-double specific_entropy_nats_max(size_t len);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-double specific_entropy_bits(const char* s);
-double specific_entropy_bits_max(size_t len);
+    double specific_entropy_nats(const char* s);
+    double specific_entropy_nats_max(size_t len);
 
-double specific_entropy_normalized(const char* s);
-double specific_entropy_normalized_max(size_t len);
+    double specific_entropy_bits(const char* s);
+    double specific_entropy_bits_max(size_t len);
 
-double absolute_entropy_nats(const char* s);
-double absolute_entropy_nats_max(size_t len);
+    double specific_entropy_normalized(const char* s);
+    double specific_entropy_normalized_max(size_t len);
 
-double absolute_entropy_bits(const char* s);
-double absolute_entropy_bits_max(size_t len);
+    double absolute_entropy_nats(const char* s);
+    double absolute_entropy_nats_max(size_t len);
 
-double absolute_entropy_normalized(const char* s);
-double absolute_entropy_normalized_max(size_t len);
+    double absolute_entropy_bits(const char* s);
+    double absolute_entropy_bits_max(size_t len);
+
+    double absolute_entropy_normalized(const char* s);
+    double absolute_entropy_normalized_max(size_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
